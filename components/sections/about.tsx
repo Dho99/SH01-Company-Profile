@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import { LogoMark } from "@/components/brand/logo";
 import { SectionHeading } from "@/components/section-heading";
 import { aboutPoints } from "@/lib/site";
 
@@ -112,10 +112,18 @@ export function About() {
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               className="absolute size-24 rounded-full border border-brand/20"
             />
-            <LogoMark className="relative size-20 drop-shadow-lg" />
-            <span className="absolute mt-28 text-lg font-bold tracking-tight text-white">
-              LEXA
-            </span>
+            <div className="relative size-20 drop-shadow-lg">
+                <Image
+                  src="/logo.png"
+                  alt="LEXA Software House"
+                  fill
+                  className="object-contain"
+                  sizes="80px"
+                />
+              </div>
+              <span className="absolute mt-28 text-lg font-bold tracking-tight text-white">
+                LEXA
+              </span>
           </div>
 
           {/* Floating commitment card */}
