@@ -2,9 +2,12 @@
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { SectionHeading } from "@/components/section-heading";
 import { testimonials } from "@/lib/site";
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 const avatarTints = [
   "bg-blue-100 text-blue-700",
@@ -20,6 +23,16 @@ function initials(name: string) {
     .join("");
 }
 
+const cardContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+
+const cardItem = {
+  hidden: { opacity: 0, x: 40 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.65, ease } },
+};
+
 export function Testimonials() {
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -34,36 +47,65 @@ export function Testimonials() {
     <section className="bg-slate-50 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeading
-            align="left"
-            eyebrow="What Clients Say"
-            title="Trusted By Great Companies"
-          />
-          <div className="flex gap-2">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.65, ease }}
+          >
+            <SectionHeading
+              align="left"
+              eyebrow="What Clients Say"
+              title="Trusted By Great Companies"
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2, ease }}
+            className="flex gap-2"
+          >
             <ArrowBtn dir="left" onClick={() => scroll("left")} />
             <ArrowBtn dir="right" onClick={() => scroll("right")} />
-          </div>
+          </motion.div>
         </div>
 
-        <div
+        <motion.div
           ref={trackRef}
+          variants={cardContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
           className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2"
         >
           {testimonials.map((t, i) => (
-            <figure
+            <motion.figure
               key={t.name}
+              variants={cardItem}
+              whileHover={{ y: -4, boxShadow: "0 12px 32px -8px rgba(0,0,0,0.12)" }}
+              transition={{ type: "spring", stiffness: 280, damping: 22 }}
               className="flex w-[88%] shrink-0 snap-start flex-col rounded-xl border bg-white p-6 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
             >
-              <Quote className="size-7 text-brand/30" />
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 300, damping: 18, delay: i * 0.1 + 0.2 }}
+              >
+                <Quote className="size-7 text-brand/30" />
+              </motion.div>
               <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-slate-700">
                 {t.quote}
               </blockquote>
               <figcaption className="mt-5 flex items-center gap-3">
-                <span
+                <motion.span
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400 }}
                   className={`inline-flex size-10 items-center justify-center rounded-full text-sm font-semibold ${avatarTints[i % avatarTints.length]}`}
                 >
                   {initials(t.name)}
-                </span>
+                </motion.span>
                 <div>
                   <p className="text-sm font-semibold text-slate-900">
                     {t.name}
@@ -71,9 +113,9 @@ export function Testimonials() {
                   <p className="text-xs text-muted-foreground">{t.role}</p>
                 </div>
               </figcaption>
-            </figure>
+            </motion.figure>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -88,13 +130,15 @@ function ArrowBtn({
 }) {
   const Icon = dir === "left" ? ChevronLeft : ChevronRight;
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.92 }}
       aria-label={dir === "left" ? "Previous" : "Next"}
       className="inline-flex size-10 items-center justify-center rounded-full border bg-white text-slate-700 shadow-sm transition-colors hover:bg-brand hover:text-white"
     >
       <Icon className="size-5" />
-    </button>
+    </motion.button>
   );
 }
