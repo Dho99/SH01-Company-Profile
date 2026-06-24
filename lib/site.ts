@@ -20,13 +20,13 @@ export const site = {
 
 export const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "#about" },
-  { label: "Services", href: "#services", hasDropdown: true },
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "Technologies", href: "#technologies" },
-  { label: "Blog", href: "#blog" },
-  { label: "Career", href: "#career" },
-  { label: "Contact", href: "#contact" },
+  { label: "About Us", href: "/#about" },
+  { label: "Services", href: "/#services", hasDropdown: true },
+  { label: "Portfolio", href: "/#portfolio" },
+  { label: "Technologies", href: "/#technologies" },
+  { label: "Blog", href: "/blog" },
+  { label: "Career", href: "/career" },
+  { label: "Contact", href: "/#contact" },
 ] as const;
 
 export const stats = [
@@ -166,13 +166,13 @@ export const testimonials = [
 export const footerNav = {
   navigation: [
     { label: "Home", href: "/" },
-    { label: "About Us", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "Portfolio", href: "#portfolio" },
-    { label: "Technologies", href: "#technologies" },
-    { label: "Blog", href: "#blog" },
-    { label: "Career", href: "#career" },
-    { label: "Contact", href: "#contact" },
+    { label: "About Us", href: "/#about" },
+    { label: "Services", href: "/#services" },
+    { label: "Portfolio", href: "/#portfolio" },
+    { label: "Technologies", href: "/#technologies" },
+    { label: "Blog", href: "/blog" },
+    { label: "Career", href: "/career" },
+    { label: "Contact", href: "/#contact" },
   ],
   services: [
     { label: "Web Development", href: "#services" },
