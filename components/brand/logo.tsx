@@ -4,34 +4,36 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type LogoProps = {
-    /** "dark" -> dark wordmark for light surfaces, "light" -> white wordmark for dark surfaces */
-    variant?: "dark" | "light";
-    className?: string;
-    href?: string;
+  variant?: "dark" | "light";
+  className?: string;
+  href?: string;
 };
 
-export function Logo({ variant, className, href = "/" }: LogoProps) {
-    return (
-        <Link
-            href={href}
-            aria-label="LEXA Software House home"
-            className={cn("inline-flex items-center gap-2.5", className)}
-        >
-            <div
-                className={cn(
-                    "relative h-full w-full",
-                    variant === "light" && "rounded bg-white p-1",
-                )}
-            >
-                <Image
-                    src="/logo.png"
-                    alt="LEXA Software House"
-                    width={100}
-                    height={24}
-                    className="object-contain object-left"
-                    sizes="200px"
-                />
-            </div>
-        </Link>
-    );
+export function Logo({ variant = "dark", className, href = "/" }: LogoProps) {
+  const isFooterLogo = variant === "light";
+  const logoSrc = isFooterLogo ? "/footerLEXA.png" : "/logo.png";
+
+  return (
+    <Link
+      href={href}
+      aria-label="LEXA Software House home"
+      className={cn("inline-flex items-center", className)}
+    >
+      <div
+        className={cn(
+          "relative",
+          isFooterLogo ? "h-[90px] w-[270px]" : "h-[74px] w-[250px]"
+        )}
+      >
+        <Image
+          src={logoSrc}
+          alt="LEXA Software House"
+          fill
+          priority
+          className="object-contain object-left"
+          sizes={isFooterLogo ? "270px" : "250px"}
+        />
+      </div>
+    </Link>
+  );
 }

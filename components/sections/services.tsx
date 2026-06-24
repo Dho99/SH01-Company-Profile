@@ -46,8 +46,8 @@ const cardVariant = {
 
 export function Services() {
   return (
-    <section id="services" className="bg-slate-50 py-20 lg:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="services" className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
+      <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -62,34 +62,53 @@ export function Services() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
-          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {services.map((s) => {
             const { icon: Icon, tint } = config[s.icon];
+
             return (
               <motion.div
                 key={s.title}
                 variants={cardVariant}
-                whileHover={{ y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
+                whileHover={{
+                  y: -6,
+                  transition: {
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20,
+                  },
+                }}
               >
-                <Card className="group h-full gap-4 border-slate-100 py-6 transition-shadow hover:border-brand/30 hover:shadow-xl">
-                  <CardHeader>
-                    <motion.span
-                      whileHover={{ scale: 1.15, rotate: 8 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                      className={`mb-2 inline-flex size-12 items-center justify-center rounded-xl ${tint}`}
-                    >
-                      <Icon className="size-6" />
-                    </motion.span>
-                    <CardTitle className="text-lg">{s.title}</CardTitle>
-                    <CardDescription className="leading-relaxed">
+                <Card className="group h-full border-slate-100 bg-white py-6 shadow-sm transition-all hover:border-brand/30 hover:shadow-xl">
+                  <CardHeader className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <motion.span
+                        whileHover={{ scale: 1.12, rotate: 6 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 15,
+                        }}
+                        className={`inline-flex size-12 shrink-0 items-center justify-center rounded-xl ${tint}`}
+                      >
+                        <Icon className="size-6" />
+                      </motion.span>
+
+                      <CardTitle className="text-lg leading-snug text-slate-900">
+                        {s.title}
+                      </CardTitle>
+                    </div>
+
+                    <CardDescription className="text-sm leading-relaxed text-slate-500">
                       {s.description}
                     </CardDescription>
                   </CardHeader>
+
                   <CardContent>
                     <Link
                       href="#contact"
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-brand transition-colors group-hover:gap-2.5"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-all group-hover:gap-2.5"
                     >
                       Learn More <ArrowRight className="size-4" />
                     </Link>

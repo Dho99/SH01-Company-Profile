@@ -34,7 +34,7 @@ const itemVariant = {
 
 export function WhyChoose() {
   return (
-    <section className="bg-white py-20 lg:py-24">
+    <section className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-6 lg:items-center lg:gap-8 lg:px-8">
         <motion.div
           initial={{ opacity: 0, x: -32 }}

@@ -57,7 +57,7 @@ const iconItem = {
 
 export function Technologies() {
   return (
-    <section id="technologies" className="bg-slate-50 py-20 lg:py-28">
+    <section id="technologies" className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -76,7 +76,7 @@ export function Technologies() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, delay: 0.1, ease }}
-          className="mt-12 rounded-2xl border bg-white p-8 shadow-sm sm:p-10"
+          className="mt-8 rounded-2xl border bg-white p-8 shadow-sm sm:p-10"
         >
           <motion.ul
             variants={gridContainer}

@@ -13,24 +13,24 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 const listContainer = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };
 
 const listItem = {
-  hidden: { opacity: 0, x: -18 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.5, ease } },
+  hidden: { opacity: 0, x: -16 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.45, ease } },
 };
 
 export function About() {
   return (
-    <section id="about" className="bg-white py-20 lg:py-28">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-        {/* Copy — slides from left */}
+    <section id="about" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
+      <div className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 lg:px-8">
+        {/* Left Content */}
         <motion.div
-          initial={{ opacity: 0, x: -56 }}
+          initial={{ opacity: 0, x: -48 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.75, ease }}
+          transition={{ duration: 0.7, ease }}
         >
           <SectionHeading
             align="left"
@@ -43,7 +43,8 @@ export function About() {
               </>
             }
           />
-          <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
+
+          <p className="mt-5 max-w-[470px] text-[15px] leading-7 text-slate-600">
             LEXA Software House is a technology company that provides innovative
             digital solutions to help businesses grow and transform through
             technology.
@@ -62,24 +63,25 @@ export function About() {
                 variants={listItem}
                 className="flex items-center gap-3 text-sm"
               >
-                <motion.span
-                  whileHover={{ scale: 1.2, rotate: 10 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <CheckCircle2 className="size-5 shrink-0 text-brand" />
-                </motion.span>
+                <span className="inline-flex shrink-0">
+                  <CheckCircle2 className="size-4 text-brand" />
+                </span>
                 <span className="text-slate-700">{point}</span>
               </motion.li>
             ))}
           </motion.ul>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4, ease }}
+            transition={{ duration: 0.45, delay: 0.35, ease }}
           >
-            <Button asChild className="mt-8 rounded-lg">
+            <Button
+              asChild
+              variant="outline"
+              className="mt-8 h-11 rounded-[8px] border-slate-200 bg-white px-5 text-sm font-semibold text-brand shadow-sm hover:bg-blue-50 hover:text-brand"
+            >
               <Link href="#contact">
                 Learn More About Us <ArrowRight className="size-4" />
               </Link>
@@ -87,76 +89,54 @@ export function About() {
           </motion.div>
         </motion.div>
 
-        {/* Visual — slides from right */}
+        {/* Right Image */}
         <motion.div
-          initial={{ opacity: 0, x: 56 }}
+          initial={{ opacity: 0, x: 48 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.75, ease }}
+          transition={{ duration: 0.7, ease }}
           className="relative"
         >
-          <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-navy-deep shadow-xl">
-            <div className="bg-network-grid absolute inset-0 opacity-20" />
-            <motion.div
-              animate={{ scale: [1, 1.08, 1], opacity: [0.15, 0.3, 0.15] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute size-48 rounded-full bg-brand/20 blur-2xl"
+          <div className="relative aspect-[16/9] overflow-hidden rounded-[14px] bg-slate-100 shadow-[0_18px_50px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/70">
+            <Image
+              src="/About.png"
+              alt="LEXA Software House office meeting room"
+              fill
+              className="object-cover object-center"
+              sizes="(min-width: 1024px) 560px, 100vw"
             />
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              className="absolute size-40 rounded-full border border-blue-400/10"
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute size-24 rounded-full border border-brand/20"
-            />
-            <div className="relative size-20 drop-shadow-lg">
-                <Image
-                  src="/logo.png"
-                  alt="LEXA Software House"
-                  fill
-                  className="object-contain"
-                  sizes="80px"
-                />
-              </div>
-              <span className="absolute mt-28 text-lg font-bold tracking-tight text-white">
-                LEXA
-              </span>
           </div>
 
           {/* Floating commitment card */}
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            initial={{ opacity: 0, y: 28, scale: 0.94 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 180, damping: 20, delay: 0.4 }}
-            className="absolute -bottom-6 right-4 sm:right-6"
+            transition={{
+              type: "spring",
+              stiffness: 180,
+              damping: 20,
+              delay: 0.35,
+            }}
+            className="absolute -bottom-7 right-4 sm:right-8 lg:-right-4"
           >
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="w-64 rounded-xl border bg-white p-4 shadow-lg"
-            >
-              <div className="flex items-start gap-3">
-                <motion.span
-                  whileHover={{ scale: 1.15, rotate: 5 }}
-                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
-                >
-                  <Users className="size-5" />
-                </motion.span>
+            <div className="w-[270px] rounded-[14px] border border-slate-100 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.14)]">
+              <div className="flex items-start gap-4">
+                <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-brand">
+                  <Users className="size-6" />
+                </span>
+
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-bold text-slate-900">
                     Our Commitment
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
                     Delivering high-quality software solutions with integrity,
                     collaboration, and dedication to exceed client expectations.
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </motion.div>
       </div>

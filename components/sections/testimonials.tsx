@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Quote, UserRound } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { SectionHeading } from "@/components/section-heading";
@@ -10,18 +10,10 @@ import { testimonials } from "@/lib/site";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const avatarTints = [
-  "bg-blue-100 text-blue-700",
-  "bg-violet-100 text-violet-700",
-  "bg-emerald-100 text-emerald-700",
+  "bg-blue-50 text-blue-600",
+  "bg-violet-50 text-violet-600",
+  "bg-emerald-50 text-emerald-600",
 ];
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("");
-}
 
 const cardContainer = {
   hidden: {},
@@ -39,12 +31,17 @@ export function Testimonials() {
   const scroll = (dir: "left" | "right") => {
     const el = trackRef.current;
     if (!el) return;
+
     const amount = el.clientWidth * 0.8;
-    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+
+    el.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   };
 
   return (
-    <section className="bg-slate-50 py-20 lg:py-28">
+    <section className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <motion.div
@@ -59,6 +56,7 @@ export function Testimonials() {
               title="Trusted By Great Companies"
             />
           </motion.div>
+
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -77,40 +75,53 @@ export function Testimonials() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
-          className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2"
+          className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-3"
         >
           {testimonials.map((t, i) => (
             <motion.figure
               key={t.name}
               variants={cardItem}
-              whileHover={{ y: -4, boxShadow: "0 12px 32px -8px rgba(0,0,0,0.12)" }}
+              whileHover={{
+                y: -4,
+                boxShadow: "0 18px 45px -16px rgba(15,23,42,0.22)",
+              }}
               transition={{ type: "spring", stiffness: 280, damping: 22 }}
-              className="flex w-[88%] shrink-0 snap-start flex-col rounded-xl border bg-white p-6 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+              className="flex w-[88%] shrink-0 snap-start flex-col rounded-[14px] border border-slate-100 bg-white p-6 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]"
             >
               <motion.div
                 initial={{ scale: 0, rotate: -20 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ type: "spring", stiffness: 300, damping: 18, delay: i * 0.1 + 0.2 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 18,
+                  delay: i * 0.1 + 0.2,
+                }}
               >
                 <Quote className="size-7 text-brand/30" />
               </motion.div>
-              <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-slate-700">
+
+              <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-slate-700">
                 {t.quote}
               </blockquote>
-              <figcaption className="mt-5 flex items-center gap-3">
-                <motion.span
-                  whileHover={{ scale: 1.1 }}
+
+              <figcaption className="mt-6 flex items-center gap-4 border-t border-slate-100 pt-5">
+                <motion.div
+                  whileHover={{ scale: 1.08 }}
                   transition={{ type: "spring", stiffness: 400 }}
-                  className={`inline-flex size-10 items-center justify-center rounded-full text-sm font-semibold ${avatarTints[i % avatarTints.length]}`}
+                  className={`inline-flex size-12 shrink-0 items-center justify-center rounded-full ${
+                    avatarTints[i % avatarTints.length]
+                  } ring-2 ring-white shadow-md`}
                 >
-                  {initials(t.name)}
-                </motion.span>
+                  <UserRound className="size-6" />
+                </motion.div>
+
                 <div>
                   <p className="text-sm font-semibold text-slate-900">
                     {t.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                  <p className="text-xs text-slate-500">{t.role}</p>
                 </div>
               </figcaption>
             </motion.figure>
@@ -129,6 +140,7 @@ function ArrowBtn({
   onClick: () => void;
 }) {
   const Icon = dir === "left" ? ChevronLeft : ChevronRight;
+
   return (
     <motion.button
       type="button"
@@ -136,7 +148,7 @@ function ArrowBtn({
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.92 }}
       aria-label={dir === "left" ? "Previous" : "Next"}
-      className="inline-flex size-10 items-center justify-center rounded-full border bg-white text-slate-700 shadow-sm transition-colors hover:bg-brand hover:text-white"
+      className="inline-flex size-10 items-center justify-center rounded-full border border-slate-100 bg-white text-slate-700 shadow-sm transition-colors hover:bg-brand hover:text-white"
     >
       <Icon className="size-5" />
     </motion.button>
