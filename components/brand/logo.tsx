@@ -22,7 +22,7 @@ export function Logo({ variant = "dark", className, href = "/" }: LogoProps) {
       <div
         className={cn(
           "relative",
-          isFooterLogo ? "h-[90px] w-[270px]" : "h-[74px] w-[250px]"
+          isFooterLogo ? "h-23.5 w-68.5" : "h-[74px] w-[250px]"
         )}
       >
         <Image
@@ -31,7 +31,7 @@ export function Logo({ variant = "dark", className, href = "/" }: LogoProps) {
           fill
           priority
           className="object-contain object-left"
-          sizes={isFooterLogo ? "270px" : "250px"}
+          sizes={isFooterLogo ? "280px" : "250px"}
         />
       </div>
     </Link>

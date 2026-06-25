@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+} from "react-icons/fa";
 
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
@@ -14,18 +19,33 @@ const socials = [
   { icon: FaYoutube, href: site.social.youtube, label: "YouTube" },
 ];
 
+const addresses = [
+  {
+    label: "Malaysia Office",
+    address:
+      "Jalan Melawis 3 No. 8, Taman Melawis, Bukit Beruang, 75450 Melaka, Malaysia",
+  },
+  {
+    label: "Indonesia Office",
+    address:
+      "Jl. Cijoho, Leuwisari, Kabupaten Tasikmalaya 46464, Jawa Barat, Indonesia",
+  },
+];
+
 export function Footer() {
   return (
     <footer id="contact" className="bg-navy-deep text-navy-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-12">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.45fr_0.85fr_1.1fr_1.75fr_1.35fr]">
           {/* Brand */}
-          <div className="lg:col-span-4">
+          <div>
             <Logo variant="light" />
+
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
               Building digital solutions for a better future through innovation,
               excellence and automation.
             </p>
+
             <div className="mt-5 flex items-center gap-3">
               {socials.map(({ icon: Icon, href, label }) => (
                 <a
@@ -41,48 +61,71 @@ export function Footer() {
           </div>
 
           {/* Navigation */}
-          <div className="lg:col-span-2">
+          <div>
             <FooterColumn title="Navigation" links={footerNav.navigation} />
           </div>
 
           {/* Services */}
-          <div className="lg:col-span-3">
+          <div>
             <FooterColumn title="Services" links={footerNav.services} />
           </div>
 
+          {/* Office Address */}
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
+              Office Address
+            </h3>
+
+            <ul className="mt-4 space-y-4 text-sm text-white/70">
+              {addresses.map((item) => (
+                <li key={item.label} className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 size-4 shrink-0 text-brand" />
+
+                  <div>
+                    <p className="font-semibold text-white/90">{item.label}</p>
+                    <p className="mt-1 max-w-[300px] leading-relaxed text-white/60">
+                      {item.address}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Contact + Newsletter */}
-          <div className="lg:col-span-3">
+          <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
               Contact Us
             </h3>
+
             <ul className="mt-4 space-y-3 text-sm text-white/70">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-brand" />
-                <span>{site.location}</span>
-              </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 size-4 shrink-0 text-brand" />
-                <span>{site.phone}</span>
+                <span className="whitespace-nowrap">{site.phone}</span>
               </li>
-              <li className="flex items-start gap-2.5">
+
+              <li className="flex items-start gap-3">
                 <Mail className="mt-0.5 size-4 shrink-0 text-brand" />
                 <span>{site.email}</span>
               </li>
             </ul>
 
-            <h3 className="mt-6 text-sm font-semibold uppercase tracking-wide text-white">
+            <h3 className="mt-7 text-sm font-semibold uppercase tracking-wide text-white">
               Newsletter
             </h3>
-            <p className="mt-2 text-sm text-white/60">
+
+            <p className="mt-3 text-sm leading-relaxed text-white/60">
               Subscribe to get the latest updates and insights.
             </p>
-            <form className="mt-3 space-y-2">
+
+            <form className="mt-4 space-y-2">
               <Input
                 type="email"
                 required
                 placeholder="Your email address"
                 className="border-white/15 bg-white/5 text-white placeholder:text-white/40"
               />
+
               <Button type="submit" className="w-full rounded-md">
                 Subscribe
               </Button>
@@ -96,6 +139,7 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {site.name}. All rights reserved.
           </p>
+
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white">
               Privacy Policy
@@ -125,6 +169,7 @@ function FooterColumn({
       <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
         {title}
       </h3>
+
       <ul className="mt-4 space-y-2.5 text-sm">
         {links.map((link) => (
           <li key={link.label}>
