@@ -1,30 +1,50 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { updateTag } from "next/cache";
 import { sectionHeadingSchema } from "@/lib/cms/schemas";
 
 export async function GET() {
-  const headings = await prisma.sectionHeading.findMany({ orderBy: { key: "asc" } });
-  return NextResponse.json(headings);
+    try {
+        const headings = await prisma.sectionHeading.findMany({
+            orderBy: { key: "asc" },
+        });
+        return NextResponse.json(headings);
+    } catch (error) {
+        console.error("[GET /api/cms/section-headings]", error);
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 },
+        );
+    }
 }
 
 export async function PUT(request: Request) {
-  const formData = await request.formData();
-  const key = formData.get("key") as string;
-  const eyebrow = formData.get("eyebrow") as string;
-  const title = formData.get("title") as string;
+    try {
+        const formData = await request.json();
+        const key = formData.key as string;
+        const eyebrow = formData.eyebrow as string;
+        const title = formData.title as string;
 
-  const parsed = sectionHeadingSchema.safeParse({ key, eyebrow, title });
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
-  }
+        const parsed = sectionHeadingSchema.safeParse({ key, eyebrow, title });
+        if (!parsed.success) {
+            const fieldErrors = parsed.error.flatten().fieldErrors;
+            const message = Object.entries(fieldErrors)
+                .flatMap(([field, msgs]) => (msgs as string[]).map((m) => `${field}: ${m}`))
+                .join("; ");
+            return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
+        }
 
-  await prisma.sectionHeading.upsert({
-    where: { key: parsed.data.key },
-    update: parsed.data,
-    create: parsed.data,
-  });
+        const data = await prisma.sectionHeading.upsert({
+            where: { key: parsed.data.key },
+            update: parsed.data,
+            create: parsed.data,
+        });
 
-  updateTag("cms:section-headings");
-  return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, data });
+    } catch (error) {
+        console.error("[PUT /api/cms/section-headings]", error);
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 },
+        );
+    }
 }

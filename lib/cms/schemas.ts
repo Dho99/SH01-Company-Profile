@@ -1,9 +1,14 @@
 import { z } from "zod";
-import { ALL_ICONS, PROJECT_CATEGORIES } from "./icons";
+import { ICON_CATEGORIES, PROJECT_CATEGORIES } from "./icons";
 
-const iconSchema = z.enum(ALL_ICONS);
+const statIconSchema = z.enum(ICON_CATEGORIES.stats);
+const serviceIconSchema = z.enum(ICON_CATEGORIES.services);
+const reasonIconSchema = z.enum(ICON_CATEGORIES.reasons);
+const technologyIconSchema = z.enum(ICON_CATEGORIES.technologies);
 
 const projectCategorySchema = z.enum(PROJECT_CATEGORIES);
+
+const optionalImageUrl = z.string().nullable().optional();
 
 export const siteSettingSchema = z.object({
   name: z.string().min(1),
@@ -33,6 +38,8 @@ export const siteSettingSchema = z.object({
   footerTagline: z.string().min(1),
   footerNewsletterTitle: z.string().min(1),
   footerNewsletterText: z.string().min(1),
+  logoUrl: optionalImageUrl,
+  heroImageUrl: optionalImageUrl,
 });
 
 export const sectionHeadingSchema = z.object({
@@ -42,7 +49,7 @@ export const sectionHeadingSchema = z.object({
 });
 
 export const statSchema = z.object({
-  icon: iconSchema,
+  icon: statIconSchema,
   value: z.string().min(1),
   label: z.string().min(1),
   sortOrder: z.number().int(),
@@ -56,9 +63,10 @@ export const aboutPointSchema = z.object({
 });
 
 export const serviceSchema = z.object({
-  icon: iconSchema,
+  icon: serviceIconSchema,
   title: z.string().min(1),
   description: z.string().min(1),
+  imageUrl: optionalImageUrl,
   sortOrder: z.number().int(),
   published: z.boolean(),
 });
@@ -67,12 +75,13 @@ export const projectSchema = z.object({
   category: projectCategorySchema,
   title: z.string().min(1),
   description: z.string().min(1),
+  imageUrl: optionalImageUrl,
   sortOrder: z.number().int(),
   published: z.boolean(),
 });
 
 export const technologySchema = z.object({
-  icon: iconSchema,
+  icon: technologyIconSchema,
   label: z.string().min(1),
   color: z.string().min(1),
   sortOrder: z.number().int(),
@@ -80,7 +89,7 @@ export const technologySchema = z.object({
 });
 
 export const reasonSchema = z.object({
-  icon: iconSchema,
+  icon: reasonIconSchema,
   title: z.string().min(1),
   description: z.string().min(1),
   sortOrder: z.number().int(),
@@ -91,6 +100,7 @@ export const testimonialSchema = z.object({
   quote: z.string().min(1),
   name: z.string().min(1),
   role: z.string().min(1),
+  avatarUrl: optionalImageUrl,
   sortOrder: z.number().int(),
   published: z.boolean(),
 });

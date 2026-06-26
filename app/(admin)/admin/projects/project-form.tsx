@@ -20,6 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 type Props = { defaultValues?: CreateProjectInput & { id: string } };
 
@@ -41,6 +42,7 @@ export function ProjectForm({ defaultValues }: Props) {
       category: "",
       title: "",
       description: "",
+      imageUrl: "",
       sortOrder: 0,
       published: true,
     }) as CreateProjectInput,
@@ -124,6 +126,24 @@ export function ProjectForm({ defaultValues }: Props) {
                     className={inputClass}
                     rows={3}
                     {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Thumbnail Image</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                    label="Upload thumbnail"
                   />
                 </FormControl>
                 <FormMessage />
