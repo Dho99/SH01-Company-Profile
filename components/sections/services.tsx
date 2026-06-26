@@ -1,27 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Cloud,
-  Code2,
-  Cog,
-  Palette,
-  ShieldCheck,
-  Smartphone,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Cloud, Code2, Cog, Palette, ShieldCheck, Smartphone } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "@/components/ui/card";
 import { SectionHeading } from "@/components/section-heading";
-import { services } from "@/lib/site";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -44,10 +32,29 @@ const cardVariant = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
 };
 
+type Service = {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+};
+
 export function Services() {
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    fetch("/api/cms/services")
+      .then((r) => r.json())
+      .then(setServices);
+  }, []);
+
+  if (services.length === 0) {
+    return <section id="services" className="bg-slate-50 py-20 lg:py-28"><div className="mx-auto max-w-7xl px-4"><div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{[1,2,3].map(i => <div key={i} className="h-48 animate-pulse rounded-xl bg-white" />)}</div></div></section>;
+  }
+
   return (
-    <section id="services" className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
-      <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
+    <section id="services" className="bg-slate-50 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -62,34 +69,22 @@ export function Services() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
-          className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {services.map((s) => {
             const { icon: Icon, tint } = config[s.icon];
-
             return (
               <motion.div
-                key={s.title}
+                key={s.id}
                 variants={cardVariant}
-                whileHover={{
-                  y: -6,
-                  transition: {
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 20,
-                  },
-                }}
+                whileHover={{ y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
               >
-                <Card className="group h-full border-slate-100 bg-white py-6 shadow-sm transition-all hover:border-brand/30 hover:shadow-xl">
+                <Card className="group h-full border-slate-100 py-6 shadow-sm transition-all hover:border-brand/30 hover:shadow-xl">
                   <CardHeader className="space-y-4">
                     <div className="flex items-center gap-4">
                       <motion.span
                         whileHover={{ scale: 1.12, rotate: 6 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 15,
-                        }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
                         className={`inline-flex size-12 shrink-0 items-center justify-center rounded-xl ${tint}`}
                       >
                         <Icon className="size-6" />

@@ -1,16 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
-  BadgeCheck,
-  Clock,
-  LifeBuoy,
-  Smile,
-  Users,
+  BadgeCheck, Clock, LifeBuoy, Smile, Users,
   type LucideIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
-
-import { reasons } from "@/lib/site";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -32,9 +27,28 @@ const itemVariant = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
 };
 
+type Reason = {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+};
+
 export function WhyChoose() {
+  const [reasons, setReasons] = useState<Reason[]>([]);
+
+  useEffect(() => {
+    fetch("/api/cms/reasons")
+      .then((r) => r.json())
+      .then(setReasons);
+  }, []);
+
+  if (reasons.length === 0) {
+    return <section className="bg-white py-20 lg:py-28"><div className="mx-auto max-w-7xl px-4"><div className="h-32 animate-pulse rounded-xl bg-slate-100" /></div></section>;
+  }
+
   return (
-    <section className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
+    <section className="bg-white py-20 lg:py-28">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-6 lg:items-center lg:gap-8 lg:px-8">
         <motion.div
           initial={{ opacity: 0, x: -32 }}
@@ -62,7 +76,7 @@ export function WhyChoose() {
             const Icon = icons[r.icon];
             return (
               <motion.div
-                key={r.title}
+                key={r.id}
                 variants={itemVariant}
                 className="flex flex-col gap-2"
               >

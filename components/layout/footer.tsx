@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
@@ -5,52 +8,92 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/f
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { footerNav, site } from "@/lib/site";
+import { CurrentYear } from "@/components/current-year";
 
-const socials = [
-  { icon: FaLinkedinIn, href: site.social.linkedin, label: "LinkedIn" },
-  { icon: FaInstagram, href: site.social.instagram, label: "Instagram" },
-  { icon: FaFacebookF, href: site.social.facebook, label: "Facebook" },
-  { icon: FaYoutube, href: site.social.youtube, label: "YouTube" },
-];
+const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  linkedin: FaLinkedinIn,
+  instagram: FaInstagram,
+  facebook: FaFacebookF,
+  youtube: FaYoutube,
+};
+
+type SiteSetting = {
+  name: string;
+  tagline: string;
+  email: string;
+  phone: string;
+  location: string;
+  linkedin: string;
+  instagram: string;
+  facebook: string;
+  youtube: string;
+  footerTagline: string;
+  footerNewsletterTitle: string;
+  footerNewsletterText: string;
+};
+
+type NavLink = {
+  id: string;
+  label: string;
+  href: string;
+  group: string;
+};
 
 export function Footer() {
+  const [site, setSite] = useState<SiteSetting | null>(null);
+  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/cms/site-setting").then((r) => r.json()),
+      fetch("/api/cms/nav-links").then((r) => r.json()),
+    ]).then(([siteData, links]) => {
+      setSite(siteData);
+      setNavLinks(links);
+    });
+  }, []);
+
+  if (!site) {
+    return <footer className="bg-navy-deep text-navy-foreground"><div className="mx-auto max-w-7xl px-4 py-16"><div className="h-48 animate-pulse rounded-xl bg-white/10" /></div></footer>;
+  }
+
+  const footerNavLinks = navLinks.filter((l) => l.group === "FOOTER_NAV");
+  const footerServiceLinks = navLinks.filter((l) => l.group === "FOOTER_SERVICE");
+
   return (
     <footer id="contact" className="bg-navy-deep text-navy-foreground">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-12">
-          {/* Brand */}
           <div className="lg:col-span-4">
             <Logo variant="light" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
-              Building digital solutions for a better future through innovation,
-              excellence and automation.
+              {site.footerTagline}
             </p>
             <div className="mt-5 flex items-center gap-3">
-              {socials.map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="inline-flex size-9 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-brand hover:text-white"
-                >
-                  <Icon className="size-4" />
-                </a>
-              ))}
+              {(["linkedin", "instagram", "facebook", "youtube"] as const).map((key) => {
+                const Icon = socialIcons[key];
+                return (
+                  <a
+                    key={key}
+                    href={site[key]}
+                    aria-label={key}
+                    className="inline-flex size-9 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-brand hover:text-white"
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
-          {/* Navigation */}
           <div className="lg:col-span-2">
-            <FooterColumn title="Navigation" links={footerNav.navigation} />
+            <FooterColumn title="Navigation" links={footerNavLinks} />
           </div>
 
-          {/* Services */}
           <div className="lg:col-span-3">
-            <FooterColumn title="Services" links={footerNav.services} />
+            <FooterColumn title="Services" links={footerServiceLinks} />
           </div>
 
-          {/* Contact + Newsletter */}
           <div className="lg:col-span-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
               Contact Us
@@ -71,10 +114,10 @@ export function Footer() {
             </ul>
 
             <h3 className="mt-6 text-sm font-semibold uppercase tracking-wide text-white">
-              Newsletter
+              {site.footerNewsletterTitle}
             </h3>
             <p className="mt-2 text-sm text-white/60">
-              Subscribe to get the latest updates and insights.
+              {site.footerNewsletterText}
             </p>
             <form className="mt-3 space-y-2">
               <Input
@@ -94,7 +137,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-white/50 sm:flex-row sm:px-6 lg:px-8">
           <p>
-            © {new Date().getFullYear()} {site.name}. All rights reserved.
+            &copy; <CurrentYear /> {site.name}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white">
@@ -118,7 +161,7 @@ function FooterColumn({
   links,
 }: {
   title: string;
-  links: readonly { label: string; href: string }[];
+  links: readonly { id: string; label: string; href: string }[];
 }) {
   return (
     <>
@@ -127,7 +170,7 @@ function FooterColumn({
       </h3>
       <ul className="mt-4 space-y-2.5 text-sm">
         {links.map((link) => (
-          <li key={link.label}>
+          <li key={link.id}>
             <Link
               href={link.href}
               className="text-white/70 transition-colors hover:text-brand"
