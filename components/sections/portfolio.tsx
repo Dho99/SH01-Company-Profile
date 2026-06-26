@@ -1,14 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/section-heading";
-import { projects } from "@/lib/site";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -43,24 +42,37 @@ const cardItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
 };
 
+type Project = {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+};
+
 export function Portfolio() {
+  const [projects, setProjects] = useState<Project[]>([]);
   const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch("/api/cms/projects")
+      .then((r) => r.json())
+      .then(setProjects);
+  }, []);
 
   const scroll = (dir: "left" | "right") => {
     const el = trackRef.current;
     if (!el) return;
-
     const amount = el.clientWidth * 0.8;
-
-    el.scrollBy({
-      left: dir === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
+  if (projects.length === 0) {
+    return <section id="portfolio" className="bg-white py-20 lg:py-28"><div className="mx-auto max-w-7xl px-4"><div className="h-64 animate-pulse rounded-xl bg-slate-100" /></div></section>;
+  }
+
   return (
-    <section id="portfolio" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
-      <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
+    <section id="portfolio" className="bg-white py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 26 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -78,7 +90,7 @@ export function Portfolio() {
           </Link>
         </motion.div>
 
-        <div className="relative mt-8">
+        <div className="relative mt-12">
           <CarouselButton dir="left" onClick={() => scroll("left")} />
           <CarouselButton dir="right" onClick={() => scroll("right")} />
 
@@ -91,16 +103,14 @@ export function Portfolio() {
             className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-3"
           >
             {projects.map((p) => {
-              const imageSrc =
-                projectImages[p.title] || fallbackImages[p.category];
-
+              const imageSrc = projectImages[p.title] || fallbackImages[p.category] || "/Company.png";
               return (
                 <motion.article
-                  key={p.title}
+                  key={p.id}
                   variants={cardItem}
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                  className="group w-[86%] shrink-0 snap-start overflow-hidden rounded-[14px] border border-slate-100 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_18px_45px_rgba(15,23,42,0.12)] sm:w-[46%] lg:w-[calc(25%-18px)]"
+                  className="group w-[85%] shrink-0 snap-start overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-shadow hover:shadow-lg sm:w-[45%] lg:w-[calc(25%-18px)]"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                     <Image
@@ -110,30 +120,18 @@ export function Portfolio() {
                       className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                       sizes="(min-width: 1024px) 280px, (min-width: 640px) 46vw, 86vw"
                     />
-
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent" />
-
-                    <Badge
-                      className={`absolute left-3 top-3 ${
-                        badgeTint[p.category] || "bg-blue-600"
-                      } px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm`}
-                    >
+                    <Badge className={`absolute left-3 top-3 ${badgeTint[p.category] || "bg-blue-600"} px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm`}>
                       {p.category}
                     </Badge>
                   </div>
 
                   <div className="space-y-2 p-5">
-                    <h3 className="text-[15px] font-bold leading-snug text-slate-950">
-                      {p.title}
-                    </h3>
-
-                    <p className="line-clamp-2 text-sm leading-relaxed text-slate-500">
-                      {p.description}
-                    </p>
-
+                    <h3 className="font-semibold text-slate-900">{p.title}</h3>
+                    <p className="text-sm text-muted-foreground">{p.description}</p>
                     <Link
                       href="#contact"
-                      className="inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-brand transition-all group-hover:gap-2.5"
+                      className="inline-flex items-center gap-1.5 pt-1 text-sm font-medium text-brand transition-all group-hover:gap-2.5"
                     >
                       View Case Study <ArrowRight className="size-4" />
                     </Link>
@@ -148,15 +146,8 @@ export function Portfolio() {
   );
 }
 
-function CarouselButton({
-  dir,
-  onClick,
-}: {
-  dir: "left" | "right";
-  onClick: () => void;
-}) {
+function CarouselButton({ dir, onClick }: { dir: "left" | "right"; onClick: () => void }) {
   const Icon = dir === "left" ? ChevronLeft : ChevronRight;
-
   return (
     <motion.button
       type="button"
@@ -164,7 +155,7 @@ function CarouselButton({
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.94 }}
       aria-label={dir === "left" ? "Previous projects" : "Next projects"}
-      className={`absolute top-[38%] z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-100 bg-white text-slate-700 shadow-[0_10px_30px_rgba(15,23,42,0.12)] transition-colors hover:bg-brand hover:text-white ${
+      className={`absolute top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border bg-white text-slate-700 shadow-md transition-colors hover:bg-brand hover:text-white ${
         dir === "left" ? "-left-2 lg:-left-5" : "-right-2 lg:-right-5"
       }`}
     >

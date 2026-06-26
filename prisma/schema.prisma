@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum NavLinkGroup {
+  HEADER
+  FOOTER_NAV
+  FOOTER_SERVICE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          Role      @default(ADMIN)
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model SiteSetting {
+  id String @id @default("singleton")
+
+  name     String
+  tagline  String
+  email    String
+  phone    String
+  location String
+
+  linkedin  String
+  instagram String
+  facebook  String
+  youtube   String
+
+  heroEyebrow         String
+  heroHeading         String
+  heroHighlight       String
+  heroDescription     String
+  heroPrimaryLabel    String
+  heroPrimaryHref     String
+  heroSecondaryLabel  String
+  heroSecondaryHref   String
+
+  aboutEyebrow          String
+  aboutHeading          String
+  aboutDescription      String
+  aboutCommitmentTitle  String
+  aboutCommitmentText   String
+  aboutCtaLabel         String
+  aboutCtaHref          String
+
+  footerTagline         String
+  footerNewsletterTitle String
+  footerNewsletterText  String
+}
+
+model SectionHeading {
+  key     String @unique
+  eyebrow String
+  title   String
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  icon      String
+  value     String
+  label     String
+  sortOrder Int
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AboutPoint {
+  id        String   @id @default(cuid())
+  text      String
+  sortOrder Int
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  icon        String
+  title       String
+  description String
+  sortOrder   Int
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  category    String
+  title       String
+  description String
+  sortOrder   Int
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Technology {
+  id        String   @id @default(cuid())
+  icon      String
+  label     String
+  color     String
+  sortOrder Int
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reason {
+  id          String   @id @default(cuid())
+  icon        String
+  title       String
+  description String
+  sortOrder   Int
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  quote     String
+  name      String
+  role      String
+  sortOrder Int
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NavLink {
+  id          String        @id @default(cuid())
+  label       String
+  href        String
+  hasDropdown Boolean       @default(false)
+  group       NavLinkGroup
+  sortOrder   Int
+  published   Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}

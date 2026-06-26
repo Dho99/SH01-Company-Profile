@@ -1,43 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { IconType } from "react-icons";
 import { FaAws } from "react-icons/fa";
 import {
-  SiDocker,
-  SiFlutter,
-  SiGit,
-  SiLaravel,
-  SiMysql,
-  SiNextdotjs,
-  SiNodedotjs,
-  SiPhp,
-  SiPython,
-  SiReact,
-  SiVuedotjs,
+  SiDocker, SiFlutter, SiGit, SiLaravel, SiMysql,
+  SiNextdotjs, SiNodedotjs, SiPhp, SiPython, SiReact, SiVuedotjs,
 } from "react-icons/si";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
-import { technologies } from "@/lib/site";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const icons: Record<string, IconType> = {
-  laravel: SiLaravel,
-  react: SiReact,
-  nextjs: SiNextdotjs,
-  vue: SiVuedotjs,
-  flutter: SiFlutter,
-  node: SiNodedotjs,
-  php: SiPhp,
-  python: SiPython,
-  mysql: SiMysql,
-  aws: FaAws,
-  docker: SiDocker,
-  git: SiGit,
+  laravel: SiLaravel, react: SiReact, nextjs: SiNextdotjs,
+  vue: SiVuedotjs, flutter: SiFlutter, node: SiNodedotjs,
+  php: SiPhp, python: SiPython, mysql: SiMysql,
+  aws: FaAws, docker: SiDocker, git: SiGit,
 };
 
 const gridContainer = {
@@ -48,16 +31,33 @@ const gridContainer = {
 const iconItem = {
   hidden: { opacity: 0, scale: 0.6, y: 16 },
   show: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
+    opacity: 1, scale: 1, y: 0,
     transition: { type: "spring" as const, stiffness: 260, damping: 20 },
   },
 };
 
+type Technology = {
+  id: string;
+  icon: string;
+  label: string;
+  color: string;
+};
+
 export function Technologies() {
+  const [technologies, setTechnologies] = useState<Technology[]>([]);
+
+  useEffect(() => {
+    fetch("/api/cms/technologies")
+      .then((r) => r.json())
+      .then(setTechnologies);
+  }, []);
+
+  if (technologies.length === 0) {
+    return <section id="technologies" className="bg-slate-50 py-20 lg:py-28"><div className="mx-auto max-w-7xl px-4"><div className="h-48 animate-pulse rounded-2xl bg-white" /></div></section>;
+  }
+
   return (
-    <section id="technologies" className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
+    <section id="technologies" className="bg-slate-50 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -76,7 +76,7 @@ export function Technologies() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, delay: 0.1, ease }}
-          className="mt-8 rounded-2xl border bg-white p-8 shadow-sm sm:p-10"
+          className="mt-12 rounded-2xl border bg-white p-8 shadow-sm sm:p-10"
         >
           <motion.ul
             variants={gridContainer}
@@ -89,11 +89,10 @@ export function Technologies() {
               const Icon = icons[tech.icon];
               return (
                 <motion.li
-                  key={tech.label}
+                  key={tech.id}
                   variants={iconItem}
                   whileHover={{
-                    scale: 1.2,
-                    y: -4,
+                    scale: 1.2, y: -4,
                     transition: { type: "spring", stiffness: 400, damping: 15 },
                   }}
                   className="group flex flex-col items-center gap-2 cursor-default"

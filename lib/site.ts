@@ -20,20 +20,20 @@ export const site = {
 
 export const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "/#about" },
-  { label: "Services", href: "/#services", hasDropdown: true },
-  { label: "Portfolio", href: "/#portfolio" },
-  { label: "Technologies", href: "/#technologies" },
-  { label: "Blog", href: "/#blog" },
-  { label: "Career", href: "/career" },
-  { label: "Contact", href: "/#contact" },
+  { label: "About Us", href: "#about" },
+  { label: "Services", href: "#services", hasDropdown: true },
+  { label: "Portfolio", href: "#portfolio" },
+  { label: "Technologies", href: "#technologies" },
+  { label: "Blog", href: "#blog" },
+  { label: "Career", href: "#career" },
+  { label: "Contact", href: "#contact" },
 ] as const;
 
 export const stats = [
-  { icon: "rocket", value: "30+", label: "Projects Completed" },
+  { icon: "rocket", value: "50+", label: "Projects Completed" },
   { icon: "clients", value: "20+", label: "Happy Clients" },
-  { icon: "team", value: "10+", label: "Expert Team" },
-  { icon: "calendar", value: "2+", label: "Years Experience" },
+  { icon: "team", value: "15+", label: "Expert Team" },
+  { icon: "calendar", value: "4+", label: "Years Experience" },
 ] as const;
 
 export const aboutPoints = [
@@ -161,22 +161,18 @@ export const testimonials = [
     name: "Budi Santoso",
     role: "CTO, CV. Sumber Abadi",
   },
-  {
-    quote:
-      "LEXA provides reliable digital solutions with a professional workflow and responsive support throughout the project.",
-    name: "Rangga Pratama",
-    role: "Project Manager, Digital Nusantara",
-  },
 ] as const;
 
 export const footerNav = {
   navigation: [
     { label: "Home", href: "/" },
-    { label: "About Us", href: "/#about" },
-    { label: "Portfolio", href: "/#portfolio" },
-    { label: "Technologies", href: "/#technologies" },
-    { label: "Career", href: "/career" },
-    { label: "Contact", href: "/#contact" },
+    { label: "About Us", href: "#about" },
+    { label: "Services", href: "#services" },
+    { label: "Portfolio", href: "#portfolio" },
+    { label: "Technologies", href: "#technologies" },
+    { label: "Blog", href: "#blog" },
+    { label: "Career", href: "#career" },
+    { label: "Contact", href: "#contact" },
   ],
   services: [
     { label: "Web Development", href: "#services" },
