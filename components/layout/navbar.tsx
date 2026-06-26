@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -32,6 +32,7 @@ export function Navbar() {
     const [open, setOpen] = useState(false);
     const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
     const [activeHref, setActiveHref] = useState("/");
+    const visibleSections = useRef(new Set<string>());
 
     useEffect(() => {
         const updateActiveHref = () => {
@@ -51,6 +52,43 @@ export function Navbar() {
         return () => {
             window.removeEventListener("hashchange", updateActiveHref);
         };
+    }, [pathname]);
+
+    useEffect(() => {
+        if (pathname !== "/") return;
+
+        const sectionIds = [
+            "about", "services", "portfolio",
+            "technologies", "blog", "career", "contact",
+        ];
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        visibleSections.current.add(entry.target.id);
+                    } else {
+                        visibleSections.current.delete(entry.target.id);
+                    }
+                });
+
+                if (visibleSections.current.size === 0) {
+                    setActiveHref("/");
+                    return;
+                }
+
+                const active = sectionIds.find((id) => visibleSections.current.has(id));
+                if (active) setActiveHref(`/#${active}`);
+            },
+            { rootMargin: "-78px 0px -50% 0px", threshold: 0 },
+        );
+
+        sectionIds.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) observer.observe(el);
+        });
+
+        return () => observer.disconnect();
     }, [pathname]);
 
     const isActive = (href: string) => {
