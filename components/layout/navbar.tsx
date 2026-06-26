@@ -8,17 +8,19 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
+import { navLinks } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-type NavLink = {
-    id: string;
-    label: string;
-    href: string;
-    hasDropdown: boolean;
-    group: string;
-};
+const serviceDropdownItems = [
+    { label: "Web Development", href: "/#services" },
+    { label: "Mobile Development", href: "/#services" },
+    { label: "System Development", href: "/#services" },
+    { label: "UI/UX Design", href: "/#services" },
+    { label: "IT Consulting", href: "/#services" },
+    { label: "Maintenance & Support", href: "/#services" },
+];
 
 function normalizeHref(href: string) {
     if (href.startsWith("#")) return `/${href}`;
@@ -27,39 +29,41 @@ function normalizeHref(href: string) {
 
 export function Navbar() {
     const pathname = usePathname();
-    const [navLinks, setNavLinks] = useState<NavLink[]>([]);
     const [open, setOpen] = useState(false);
     const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
     const [activeHref, setActiveHref] = useState("/");
 
     useEffect(() => {
-        fetch("/api/cms/nav-links")
-            .then((r) => r.json())
-            .then((data: NavLink[]) =>
-                setNavLinks(data.filter((l) => l.group === "HEADER")),
-            );
-    }, []);
-
-    useEffect(() => {
         const updateActiveHref = () => {
             const hash = window.location.hash;
+
             if (pathname === "/") {
                 setActiveHref(hash ? `/${hash}` : "/");
             } else {
                 setActiveHref(pathname);
             }
         };
+
         updateActiveHref();
+
         window.addEventListener("hashchange", updateActiveHref);
-        return () => window.removeEventListener("hashchange", updateActiveHref);
+
+        return () => {
+            window.removeEventListener("hashchange", updateActiveHref);
+        };
     }, [pathname]);
 
     const isActive = (href: string) => {
         const normalizedHref = normalizeHref(href);
-        if (normalizedHref === "/")
+
+        if (normalizedHref === "/") {
             return pathname === "/" && activeHref === "/";
-        if (normalizedHref.startsWith("/#"))
+        }
+
+        if (normalizedHref.startsWith("/#")) {
             return pathname === "/" && activeHref === normalizedHref;
+        }
+
         return pathname === normalizedHref;
     };
 
@@ -68,25 +72,27 @@ export function Navbar() {
             initial={{ y: -70, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.55, ease }}
-            className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75"
+            className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white shadow-[0_1px_18px_rgba(15,23,42,0.04)]"
         >
-            <div className="mx-auto flex h-16 items-center justify-between max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-[78px] max-w-[1220px] items-center justify-between px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.92 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.45, delay: 0.12, ease }}
+                    className="flex shrink-0 items-center"
                 >
                     <Logo />
                 </motion.div>
 
                 <nav className="hidden items-center gap-8 lg:flex">
                     {navLinks.map((link, i) => {
-                        const hasDropdown = link.hasDropdown;
+                        const hasDropdown =
+                            "hasDropdown" in link && link.hasDropdown;
                         const active = isActive(link.href);
 
                         return (
                             <motion.div
-                                key={link.id || link.label}
+                                key={link.label}
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{
@@ -102,34 +108,44 @@ export function Navbar() {
                                         setActiveHref(normalizeHref(link.href))
                                     }
                                     className={cn(
-                                        "group relative inline-flex items-center gap-1 py-5 text-sm font-medium transition-colors hover:text-brand",
+                                        "relative inline-flex h-[78px] items-center gap-1 text-[14px] font-medium tracking-[-0.01em] transition-colors",
                                         active
-                                            ? "text-brand"
-                                            : "text-slate-600",
+                                            ? "text-slate-950"
+                                            : "text-slate-700 hover:text-brand",
                                     )}
                                 >
                                     {link.label}
+
                                     {hasDropdown && (
-                                        <ChevronDown className="size-3.5 transition-transform duration-300 group-hover:rotate-180" />
+                                        <ChevronDown className="size-3.5 stroke-[2.3] transition-transform duration-300 group-hover:rotate-180" />
                                     )}
+
                                     {active && (
-                                        <span className="absolute inset-x-0 bottom-0 mx-auto h-0.5 w-6 rounded-full bg-brand" />
+                                        <span className="absolute bottom-0 left-1/2 h-[2px] w-7 -translate-x-1/2 rounded-full bg-brand" />
                                     )}
                                 </Link>
 
                                 {hasDropdown && (
-                                    <div className="invisible absolute left-1/2 top-full w-64 -translate-x-1/2 translate-y-3 rounded-xl border border-slate-100 bg-white p-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                                    <div className="invisible absolute left-1/2 top-full w-64 -translate-x-1/2 translate-y-3 rounded-xl border border-slate-100 bg-white p-2 opacity-0 shadow-[0_18px_50px_rgba(15,23,42,0.12)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                                         <div className="absolute -top-2 left-1/2 size-4 -translate-x-1/2 rotate-45 border-l border-t border-slate-100 bg-white" />
+
                                         <div className="relative space-y-1">
-                                            {navLinks.map((item) => (
-                                                <Link
-                                                    key={item.id}
-                                                    href={item.href}
-                                                    className="block rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-blue-50 hover:text-brand"
-                                                >
-                                                    {item.label}
-                                                </Link>
-                                            ))}
+                                            {serviceDropdownItems.map(
+                                                (item) => (
+                                                    <Link
+                                                        key={item.label}
+                                                        href={item.href}
+                                                        onClick={() =>
+                                                            setActiveHref(
+                                                                item.href,
+                                                            )
+                                                        }
+                                                        className="block rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-blue-50 hover:text-brand"
+                                                    >
+                                                        {item.label}
+                                                    </Link>
+                                                ),
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -144,8 +160,16 @@ export function Navbar() {
                     transition={{ duration: 0.4, delay: 0.35, ease }}
                     className="hidden shrink-0 lg:block"
                 >
-                    <Button asChild className="rounded-lg px-5">
-                        <Link href="/#contact">Get in Touch</Link>
+                    <Button
+                        asChild
+                        className="h-11 rounded-[8px] bg-brand px-7 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(37,99,235,0.22)] transition-all hover:bg-brand/90 hover:shadow-[0_10px_24px_rgba(37,99,235,0.28)]"
+                    >
+                        <Link
+                            href="/#contact"
+                            onClick={() => setActiveHref("/#contact")}
+                        >
+                            Get in Touch
+                        </Link>
                     </Button>
                 </motion.div>
 
@@ -154,7 +178,7 @@ export function Navbar() {
                     aria-label="Toggle menu"
                     onClick={() => setOpen((v) => !v)}
                     whileTap={{ scale: 0.92 }}
-                    className="inline-flex size-10 items-center justify-center rounded-md text-slate-700 lg:hidden"
+                    className="inline-flex size-10 items-center justify-center rounded-md text-slate-800 transition hover:bg-slate-100 lg:hidden"
                 >
                     <AnimatePresence mode="wait" initial={false}>
                         {open ? (
@@ -191,14 +215,15 @@ export function Navbar() {
                         transition={{ duration: 0.28, ease }}
                         className="overflow-hidden border-t border-slate-100 bg-white lg:hidden"
                     >
-                        <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6">
-                            {navLinks.map((link) => {
-                                const hasDropdown = link.hasDropdown;
+                        <nav className="mx-auto flex max-w-[1180px] flex-col gap-1 px-4 py-4 sm:px-6">
+                            {navLinks.map((link, i) => {
+                                const hasDropdown =
+                                    "hasDropdown" in link && link.hasDropdown;
                                 const active = isActive(link.href);
 
                                 if (hasDropdown) {
                                     return (
-                                        <div key={link.id || link.label}>
+                                        <div key={link.label}>
                                             <button
                                                 type="button"
                                                 onClick={() =>
@@ -222,6 +247,7 @@ export function Navbar() {
                                                     )}
                                                 />
                                             </button>
+
                                             <AnimatePresence>
                                                 {mobileServicesOpen && (
                                                     <motion.div
@@ -244,16 +270,19 @@ export function Navbar() {
                                                         className="overflow-hidden"
                                                     >
                                                         <div className="ml-3 mt-1 space-y-1 border-l border-slate-100 pl-3">
-                                                            {navLinks.map(
+                                                            {serviceDropdownItems.map(
                                                                 (item) => (
                                                                     <Link
                                                                         key={
-                                                                            item.id
+                                                                            item.label
                                                                         }
                                                                         href={
                                                                             item.href
                                                                         }
                                                                         onClick={() => {
+                                                                            setActiveHref(
+                                                                                item.href,
+                                                                            );
                                                                             setOpen(
                                                                                 false,
                                                                             );
@@ -275,34 +304,61 @@ export function Navbar() {
                                 }
 
                                 return (
-                                    <Link
-                                        key={link.id || link.label}
-                                        href={link.href}
-                                        onClick={() => {
-                                            setActiveHref(
-                                                normalizeHref(link.href),
-                                            );
-                                            setOpen(false);
+                                    <motion.div
+                                        key={link.label}
+                                        initial={{ opacity: 0, x: -14 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{
+                                            delay: i * 0.04,
+                                            duration: 0.25,
+                                            ease,
                                         }}
-                                        className={cn(
-                                            "rounded-lg px-3 py-2.5 text-sm font-medium transition",
-                                            active
-                                                ? "bg-blue-50 text-brand"
-                                                : "text-slate-700 hover:bg-slate-50 hover:text-brand",
-                                        )}
                                     >
-                                        {link.label}
-                                    </Link>
+                                        <Link
+                                            href={link.href}
+                                            onClick={() => {
+                                                setActiveHref(
+                                                    normalizeHref(link.href),
+                                                );
+                                                setOpen(false);
+                                            }}
+                                            className={cn(
+                                                "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                                                active
+                                                    ? "bg-blue-50 text-brand"
+                                                    : "text-slate-700 hover:bg-slate-50 hover:text-brand",
+                                            )}
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    </motion.div>
                                 );
                             })}
-                            <Button asChild className="mt-2 rounded-lg">
-                                <Link
-                                    href="/#contact"
-                                    onClick={() => setOpen(false)}
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{
+                                    delay: navLinks.length * 0.04 + 0.05,
+                                    duration: 0.25,
+                                    ease,
+                                }}
+                            >
+                                <Button
+                                    asChild
+                                    className="mt-3 h-10 w-full rounded-lg bg-brand"
                                 >
-                                    Get in Touch
-                                </Link>
-                            </Button>
+                                    <Link
+                                        href="/#contact"
+                                        onClick={() => {
+                                            setActiveHref("/#contact");
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        Get in Touch
+                                    </Link>
+                                </Button>
+                            </motion.div>
                         </nav>
                     </motion.div>
                 )}
