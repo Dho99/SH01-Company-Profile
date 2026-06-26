@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell($env:CI=\"1\"; npx --yes shadcn@latest init --base-color slate --yes 2>&1 | Select-Object -Last 40)",
-      "PowerShell(npx --yes shadcn@latest init --help 2>&1)",
-      "PowerShell($env:CI=\"1\"; npx --yes shadcn@latest init -b radix -t next -f -y 2>&1 | Select-Object -Last 50)"
-    ]
-  }
-}
