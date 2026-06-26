@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { updateTag } from "next/cache";
 import { statSchema, aboutPointSchema, serviceSchema, projectSchema, technologySchema, reasonSchema, testimonialSchema, navLinkSchema } from "@/lib/cms/schemas";
 import type { ZodSchema } from "zod";
 
@@ -13,17 +12,6 @@ const SCHEMAS: Record<string, ZodSchema> = {
   reasons: reasonSchema,
   testimonials: testimonialSchema,
   "nav-links": navLinkSchema,
-};
-
-const TAGS: Record<string, string> = {
-  stat: "cms:stats",
-  "about-points": "cms:about-points",
-  services: "cms:services",
-  projects: "cms:projects",
-  technologies: "cms:technologies",
-  reasons: "cms:reasons",
-  testimonials: "cms:testimonials",
-  "nav-links": "cms:nav-links",
 };
 
 const prismaModels: Record<string, unknown> = {
@@ -43,38 +31,50 @@ type UpdateDelegate = {
 };
 
 export async function PUT(request: Request, { params }: { params: Promise<{ entity: string; id: string }> }) {
-  const { entity, id } = await params;
-  const schema = SCHEMAS[entity];
-  const tag = TAGS[entity];
-  const model = prismaModels[entity] as UpdateDelegate | undefined;
+  try {
+    const { entity, id } = await params;
+    const schema = SCHEMAS[entity];
+    const model = prismaModels[entity] as UpdateDelegate | undefined;
 
-  if (!schema || !tag || !model) {
-    return NextResponse.json({ error: "Unknown entity" }, { status: 400 });
+    if (!schema || !model) {
+      return NextResponse.json({ error: "Unknown entity" }, { status: 400 });
+    }
+
+    const raw = await request.json() as Record<string, unknown>;
+    for (const field of ["imageUrl", "avatarUrl"]) {
+      if (raw[field] === "") raw[field] = null;
+    }
+    const parsed = schema.safeParse(raw);
+
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      const message = Object.entries(fieldErrors)
+        .flatMap(([field, msgs]) => (msgs as string[]).map((m) => `${field}: ${m}`))
+        .join("; ");
+      return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
+    }
+
+    const updated = await model.update({ where: { id }, data: parsed.data as Record<string, unknown> });
+    return NextResponse.json({ success: true, data: updated });
+  } catch (error) {
+    console.error("[PUT /api/cms/[entity]/[id]]", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  const formData = await request.formData();
-  const raw = Object.fromEntries(formData.entries());
-  const parsed = schema.safeParse(raw);
-
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
-  }
-
-  await model.update({ where: { id }, data: parsed.data as Record<string, unknown> });
-  updateTag(tag);
-  return NextResponse.json({ success: true });
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ entity: string; id: string }> }) {
-  const { entity, id } = await params;
-  const tag = TAGS[entity];
-  const model = prismaModels[entity] as UpdateDelegate | undefined;
+  try {
+    const { entity, id } = await params;
+    const model = prismaModels[entity] as UpdateDelegate | undefined;
 
-  if (!tag || !model) {
-    return NextResponse.json({ error: "Unknown entity" }, { status: 400 });
+    if (!model) {
+      return NextResponse.json({ error: "Unknown entity" }, { status: 400 });
+    }
+
+    const deleted = await model.delete({ where: { id } });
+    return NextResponse.json({ success: true, data: deleted });
+  } catch (error) {
+    console.error("[DELETE /api/cms/[entity]/[id]]", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  await model.delete({ where: { id } });
-  updateTag(tag);
-  return NextResponse.json({ success: true });
 }

@@ -9,7 +9,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { reasonSchema } from "@/lib/cms/schemas";
 import type { CreateReasonInput } from "@/lib/cms/types";
-import { ALL_ICONS } from "@/lib/cms/icons";
+import { ICON_CATEGORIES } from "@/lib/cms/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -87,7 +87,7 @@ export function ReasonForm({ defaultValues }: Props) {
                 <FormControl>
                   <select className={selectClass} {...field}>
                     <option value="">Select an icon...</option>
-                    {ALL_ICONS.map((icon) => (
+                    {ICON_CATEGORIES.reasons.map((icon) => (
                       <option key={icon} value={icon}>
                         {icon}
                       </option>

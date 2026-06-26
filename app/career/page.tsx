@@ -7,7 +7,6 @@ import {
   Bot,
   BriefcaseBusiness,
   CheckCircle2,
-  ClipboardCheck,
   Code2,
   FileText,
   GraduationCap,

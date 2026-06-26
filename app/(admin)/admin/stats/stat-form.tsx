@@ -9,7 +9,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { statSchema } from "@/lib/cms/schemas";
 import type { CreateStatInput } from "@/lib/cms/types";
-import { ALL_ICONS } from "@/lib/cms/icons";
+import { ICON_CATEGORIES } from "@/lib/cms/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -95,7 +95,7 @@ export function StatForm({ defaultValues }: Props) {
                                         <option value="">
                                             Select an icon...
                                         </option>
-                                        {ALL_ICONS.map((icon) => (
+                                        {ICON_CATEGORIES.stats.map((icon) => (
                                             <option key={icon} value={icon}>
                                                 {icon}
                                             </option>

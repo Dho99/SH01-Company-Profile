@@ -3,6 +3,7 @@
 import { useState } from "react";
 import api, { AxiosError } from "@/lib/api/api";
 import { toast } from "sonner";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 const FIELDS = [
   { section: "Brand & Contact", fields: [
@@ -53,17 +54,23 @@ type Props = {
     aboutEyebrow: string; aboutHeading: string; aboutDescription: string;
     aboutCommitmentTitle: string; aboutCommitmentText: string; aboutCtaLabel: string; aboutCtaHref: string;
     footerTagline: string; footerNewsletterTitle: string; footerNewsletterText: string;
+    logoUrl?: string | null;
+    heroImageUrl?: string | null;
   } | null;
 };
 
 export function SiteSettingForm({ settings }: Props) {
   const [pending, setPending] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(settings?.logoUrl ?? "");
+  const [heroImageUrl, setHeroImageUrl] = useState(settings?.heroImageUrl ?? "");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setPending(true);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("logoUrl", logoUrl ?? "");
+    formData.set("heroImageUrl", heroImageUrl ?? "");
 
     try {
       await api.put("/cms/site-setting", formData);
@@ -123,6 +130,20 @@ export function SiteSettingForm({ settings }: Props) {
             </div>
           </fieldset>
         ))}
+
+        <fieldset>
+          <legend className="text-lg font-semibold text-slate-900">Images</legend>
+          <div className="mt-4 grid gap-6 sm:grid-cols-2">
+            <div>
+              <p className="mb-2 block text-sm font-medium text-slate-700">Logo</p>
+              <ImageUpload value={logoUrl ?? ""} onChange={setLogoUrl} label="Upload logo" />
+            </div>
+            <div>
+              <p className="mb-2 block text-sm font-medium text-slate-700">Hero Image</p>
+              <ImageUpload value={heroImageUrl ?? ""} onChange={setHeroImageUrl} label="Upload hero image" />
+            </div>
+          </div>
+        </fieldset>
 
         <button
           type="submit"

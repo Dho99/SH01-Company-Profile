@@ -51,3 +51,4 @@ node_modules/
 /playwright/.auth/
 CLAUDE.md
 AGENTS.md
+.claude/

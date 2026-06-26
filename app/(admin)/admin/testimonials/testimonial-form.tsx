@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 type Props = { defaultValues?: CreateTestimonialInput & { id: string } };
 
@@ -38,6 +39,7 @@ export function TestimonialForm({ defaultValues }: Props) {
       quote: "",
       name: "",
       role: "",
+      avatarUrl: "",
       sortOrder: 0,
       published: true,
     },
@@ -115,6 +117,24 @@ export function TestimonialForm({ defaultValues }: Props) {
                 <FormLabel>Role</FormLabel>
                 <FormControl>
                   <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="avatarUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Avatar Photo</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                    label="Upload avatar"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
