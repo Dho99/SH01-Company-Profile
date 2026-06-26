@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, Quote, UserRound } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -29,16 +30,25 @@ type Testimonial = {
     quote: string;
     name: string;
     role: string;
+    avatarUrl: string | null;
 };
+
+type Heading = { eyebrow: string; title: string };
 
 export function Testimonials() {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+    const [heading, setHeading] = useState<Heading | null>(null);
     const trackRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        fetch("/api/cms/testimonials")
-            .then((r) => r.json())
-            .then(setTestimonials);
+        Promise.all([
+            fetch("/api/cms/testimonials").then((r) => r.json()),
+            fetch("/api/cms/section-headings").then((r) => r.json()),
+        ]).then(([items, headings]) => {
+            setTestimonials(items);
+            const h = headings.find((x: { key: string }) => x.key === "testimonials");
+            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
+        });
     }, []);
 
     const scroll = (dir: "left" | "right") => {
@@ -73,8 +83,8 @@ export function Testimonials() {
                     >
                         <SectionHeading
                             align="left"
-                            eyebrow="What Clients Say"
-                            title="Trusted By Great Companies"
+                            eyebrow={heading?.eyebrow ?? "What Clients Say"}
+                            title={heading?.title ?? "Trusted By Great Companies"}
                         />
                     </motion.div>
 
@@ -139,9 +149,19 @@ export function Testimonials() {
                                         type: "spring",
                                         stiffness: 400,
                                     }}
-                                    className={`inline-flex size-12 shrink-0 items-center justify-center rounded-full ${avatarTints[i % avatarTints.length]} ring-2 ring-white shadow-md`}
+                                    className={`relative inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full ${t.avatarUrl ? "" : avatarTints[i % avatarTints.length]} ring-2 ring-white shadow-md`}
                                 >
-                                    <UserRound className="size-6" />
+                                    {t.avatarUrl ? (
+                                        <Image
+                                            src={t.avatarUrl}
+                                            alt={t.name}
+                                            fill
+                                            className="object-cover"
+                                            sizes="48px"
+                                        />
+                                    ) : (
+                                        <UserRound className="size-6" />
+                                    )}
                                 </motion.div>
                                 <div>
                                     <p className="text-sm font-semibold text-slate-900">

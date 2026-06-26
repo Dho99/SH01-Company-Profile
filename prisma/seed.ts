@@ -301,35 +301,35 @@ async function main() {
         },
         {
             label: "About Us",
-            href: "#about",
+            href: "/#about",
             hasDropdown: false,
             group: "HEADER" as const,
             sortOrder: 1,
         },
         {
             label: "Services",
-            href: "#services",
+            href: "/#services",
             hasDropdown: true,
             group: "HEADER" as const,
             sortOrder: 2,
         },
         {
             label: "Portfolio",
-            href: "#portfolio",
+            href: "/#portfolio",
             hasDropdown: false,
             group: "HEADER" as const,
             sortOrder: 3,
         },
         {
             label: "Technologies",
-            href: "#technologies",
+            href: "/#technologies",
             hasDropdown: false,
             group: "HEADER" as const,
             sortOrder: 4,
         },
         {
             label: "Blog",
-            href: "#blog",
+            href: "/#blog",
             hasDropdown: false,
             group: "HEADER" as const,
             sortOrder: 5,
@@ -343,7 +343,7 @@ async function main() {
         },
         {
             label: "Contact",
-            href: "#contact",
+            href: "/#contact",
             hasDropdown: false,
             group: "HEADER" as const,
             sortOrder: 7,
@@ -357,35 +357,35 @@ async function main() {
         },
         {
             label: "About Us",
-            href: "#about",
+            href: "/#about",
             hasDropdown: false,
             group: "FOOTER_NAV" as const,
             sortOrder: 1,
         },
         {
             label: "Services",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_NAV" as const,
             sortOrder: 2,
         },
         {
             label: "Portfolio",
-            href: "#portfolio",
+            href: "/#portfolio",
             hasDropdown: false,
             group: "FOOTER_NAV" as const,
             sortOrder: 3,
         },
         {
             label: "Technologies",
-            href: "#technologies",
+            href: "/#technologies",
             hasDropdown: false,
             group: "FOOTER_NAV" as const,
             sortOrder: 4,
         },
         {
             label: "Blog",
-            href: "#blog",
+            href: "/#blog",
             hasDropdown: false,
             group: "FOOTER_NAV" as const,
             sortOrder: 5,
@@ -399,49 +399,49 @@ async function main() {
         },
         {
             label: "Contact",
-            href: "#contact",
+            href: "/#contact",
             hasDropdown: false,
             group: "FOOTER_NAV" as const,
             sortOrder: 7,
         },
         {
             label: "Web Development",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_SERVICE" as const,
             sortOrder: 0,
         },
         {
             label: "Mobile Development",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_SERVICE" as const,
             sortOrder: 1,
         },
         {
             label: "System Development",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_SERVICE" as const,
             sortOrder: 2,
         },
         {
             label: "UI/UX Design",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_SERVICE" as const,
             sortOrder: 3,
         },
         {
             label: "IT Consulting",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_SERVICE" as const,
             sortOrder: 4,
         },
         {
             label: "Maintenance & Support",
-            href: "#services",
+            href: "/#services",
             hasDropdown: false,
             group: "FOOTER_SERVICE" as const,
             sortOrder: 5,
@@ -449,6 +449,50 @@ async function main() {
     ];
     for (const link of navLinks) {
         await prisma.navLink.create({ data: link });
+    }
+
+    /* ───── BlogPosts ───── */
+    await prisma.blogPost.deleteMany();
+    const blogPosts = [
+        {
+            badge: "Latest News",
+            tag: "Special Information",
+            publishedAt: new Date("2026-05-18"),
+            title: "LEXA Software House Launches Project-Based Internship Program",
+            excerpt:
+                "This internship program is designed to provide hands-on experience in building professional digital solutions with the LEXA team.",
+            sortOrder: 0,
+        },
+        {
+            badge: "Technology",
+            tag: "Digital Innovation",
+            publishedAt: new Date("2026-05-12"),
+            title: "LEXA Develops Company Profile Website to Strengthen Digital Presence",
+            excerpt:
+                "A company profile website plays an important role in building digital identity and increasing trust from potential clients.",
+            sortOrder: 1,
+        },
+        {
+            badge: "Project",
+            tag: "Web Development",
+            publishedAt: new Date("2026-05-07"),
+            title: "LEXA Developer Team Starts Building Portfolio Management System",
+            excerpt:
+                "The portfolio management system is developed to showcase projects, case studies, and service documentation more professionally.",
+            sortOrder: 2,
+        },
+        {
+            badge: "Career",
+            tag: "Internship",
+            publishedAt: new Date("2026-01-05"),
+            title: "Internship Opportunities at LEXA for Technology Students",
+            excerpt:
+                "Students can gain real project experience through teamwork, mentoring, collaboration, and portfolio development.",
+            sortOrder: 3,
+        },
+    ];
+    for (const post of blogPosts) {
+        await prisma.blogPost.create({ data: post });
     }
 
     /* ───── Admin user ───── */

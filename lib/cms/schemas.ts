@@ -105,6 +105,18 @@ export const testimonialSchema = z.object({
   published: z.boolean(),
 });
 
+export const blogPostSchema = z.object({
+  badge: z.string().min(1),
+  tag: z.string().min(1),
+  publishedAt: z.string().min(1),
+  title: z.string().min(1),
+  excerpt: z.string().min(1),
+  content: z.string(),
+  imageUrl: optionalImageUrl,
+  sortOrder: z.number().int(),
+  published: z.boolean(),
+});
+
 export const loginSchema = z.object({
   email: z.string().email("Valid email is required"),
   password: z.string().min(1, "Password is required"),

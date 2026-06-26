@@ -47,16 +47,25 @@ type Project = {
     category: string;
     title: string;
     description: string;
+    imageUrl: string | null;
 };
+
+type Heading = { eyebrow: string; title: string };
 
 export function Portfolio() {
     const [projects, setProjects] = useState<Project[]>([]);
+    const [heading, setHeading] = useState<Heading | null>(null);
     const trackRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        fetch("/api/cms/projects")
-            .then((r) => r.json())
-            .then(setProjects);
+        Promise.all([
+            fetch("/api/cms/projects").then((r) => r.json()),
+            fetch("/api/cms/section-headings").then((r) => r.json()),
+        ]).then(([items, headings]) => {
+            setProjects(items);
+            const h = headings.find((x: { key: string }) => x.key === "portfolio");
+            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
+        });
     }, []);
 
     const scroll = (dir: "left" | "right") => {
@@ -90,12 +99,12 @@ export function Portfolio() {
                     className="relative flex flex-col items-center"
                 >
                     <SectionHeading
-                        eyebrow="Our Portfolio"
-                        title="Featured Projects"
+                        eyebrow={heading?.eyebrow ?? "Our Portfolio"}
+                        title={heading?.title ?? "Featured Projects"}
                     />
 
                     <Link
-                        href="#portfolio"
+                        href="/#portfolio"
                         className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-all hover:gap-2.5 lg:absolute lg:right-0 lg:top-2 lg:mt-0"
                     >
                         View All Projects <ArrowRight className="size-4" />
@@ -119,6 +128,7 @@ export function Portfolio() {
                     >
                         {projects.map((p) => {
                             const imageSrc =
+                                p.imageUrl ||
                                 projectImages[p.title] ||
                                 fallbackImages[p.category] ||
                                 "/Company.png";
@@ -154,11 +164,12 @@ export function Portfolio() {
                                         <h3 className="font-semibold text-slate-900">
                                             {p.title}
                                         </h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            {p.description}
-                                        </p>
+                                        <p
+                                            className="text-sm text-muted-foreground"
+                                            dangerouslySetInnerHTML={{ __html: p.description }}
+                                        />
                                         <Link
-                                            href="#contact"
+                                            href="/#contact"
                                             className="inline-flex items-center gap-1.5 pt-1 text-sm font-medium text-brand transition-all group-hover:gap-2.5"
                                         >
                                             View Case Study{" "}

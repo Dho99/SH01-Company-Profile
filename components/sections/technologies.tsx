@@ -62,13 +62,21 @@ type Technology = {
     color: string;
 };
 
+type Heading = { eyebrow: string; title: string };
+
 export function Technologies() {
     const [technologies, setTechnologies] = useState<Technology[]>([]);
+    const [heading, setHeading] = useState<Heading | null>(null);
 
     useEffect(() => {
-        fetch("/api/cms/technologies")
-            .then((r) => r.json())
-            .then(setTechnologies);
+        Promise.all([
+            fetch("/api/cms/technologies").then((r) => r.json()),
+            fetch("/api/cms/section-headings").then((r) => r.json()),
+        ]).then(([items, headings]) => {
+            setTechnologies(items);
+            const h = headings.find((x: { key: string }) => x.key === "technologies");
+            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
+        });
     }, []);
 
     if (technologies.length === 0) {
@@ -91,8 +99,8 @@ export function Technologies() {
                     transition={{ duration: 0.65, ease }}
                 >
                     <SectionHeading
-                        eyebrow="Technologies We Use"
-                        title="Built On a Modern Stack"
+                        eyebrow={heading?.eyebrow ?? "Technologies We Use"}
+                        title={heading?.title ?? "Built On a Modern Stack"}
                     />
                 </motion.div>
 
@@ -163,7 +171,7 @@ export function Technologies() {
                             variant="outline"
                             className="rounded-lg"
                         >
-                            <Link href="#contact">
+                            <Link href="/#contact">
                                 View All Technologies{" "}
                                 <ArrowRight className="size-4" />
                             </Link>

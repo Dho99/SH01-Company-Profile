@@ -8,10 +8,17 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
-import { navLinks } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+
+type NavLink = {
+    id: string;
+    label: string;
+    href: string;
+    hasDropdown: boolean;
+    group: string;
+};
 
 const serviceDropdownItems = [
     { label: "Web Development", href: "/#services" },
@@ -29,10 +36,19 @@ function normalizeHref(href: string) {
 
 export function Navbar() {
     const pathname = usePathname();
+    const [navLinks, setNavLinks] = useState<NavLink[]>([]);
     const [open, setOpen] = useState(false);
     const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
     const [activeHref, setActiveHref] = useState("/");
     const visibleSections = useRef(new Set<string>());
+
+    useEffect(() => {
+        fetch("/api/cms/nav-links")
+            .then((r) => r.json())
+            .then((data: NavLink[]) => {
+                setNavLinks(data.filter((l) => l.group === "HEADER"));
+            });
+    }, []);
 
     useEffect(() => {
         const updateActiveHref = () => {

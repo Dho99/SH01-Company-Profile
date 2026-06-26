@@ -7,7 +7,7 @@ export function SignOutButton() {
         <button
             type="button"
             onClick={logout}
-            className="w-full rounded-md px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+            className="w-full rounded px-3 py-2 text-left text-sm text-white/45 transition-colors hover:bg-white/8 hover:text-white/80"
         >
             Sign Out
         </button>

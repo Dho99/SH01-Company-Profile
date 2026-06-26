@@ -111,3 +111,8 @@ export type Testimonial = Prisma.TestimonialModel
  * 
  */
 export type NavLink = Prisma.NavLinkModel
+/**
+ * Model BlogPost
+ * 
+ */
+export type BlogPost = Prisma.BlogPostModel

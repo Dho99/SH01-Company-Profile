@@ -14,6 +14,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
+import Image from "next/image";
 import {
     Card,
     CardContent,
@@ -49,15 +50,24 @@ type Service = {
     icon: string;
     title: string;
     description: string;
+    imageUrl: string | null;
 };
+
+type Heading = { eyebrow: string; title: string };
 
 export function Services() {
     const [services, setServices] = useState<Service[]>([]);
+    const [heading, setHeading] = useState<Heading | null>(null);
 
     useEffect(() => {
-        fetch("/api/cms/services")
-            .then((r) => r.json())
-            .then(setServices);
+        Promise.all([
+            fetch("/api/cms/services").then((r) => r.json()),
+            fetch("/api/cms/section-headings").then((r) => r.json()),
+        ]).then(([items, headings]) => {
+            setServices(items);
+            const h = headings.find((x: { key: string }) => x.key === "services");
+            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
+        });
     }, []);
 
     if (services.length === 0) {
@@ -87,8 +97,8 @@ export function Services() {
                     transition={{ duration: 0.65, ease }}
                 >
                     <SectionHeading
-                        eyebrow="Our Services"
-                        title="Solutions We Provide"
+                        eyebrow={heading?.eyebrow ?? "Our Services"}
+                        title={heading?.title ?? "Solutions We Provide"}
                     />
                 </motion.div>
 
@@ -116,7 +126,18 @@ export function Services() {
                                     },
                                 }}
                             >
-                                <Card className="group h-full border-slate-100 py-6 shadow-sm transition-all hover:border-brand/30 hover:shadow-xl">
+                                <Card className={`group h-full border-slate-100 shadow-sm transition-all hover:border-brand/30 hover:shadow-xl ${s.imageUrl ? "overflow-hidden pt-0 pb-6" : "py-6"}`}>
+                                    {s.imageUrl && (
+                                        <div className="relative aspect-[2/1] w-full shrink-0">
+                                            <Image
+                                                src={s.imageUrl}
+                                                alt={s.title}
+                                                fill
+                                                className="object-cover"
+                                                sizes="(min-width: 1024px) 380px, (min-width: 640px) 46vw, 86vw"
+                                            />
+                                        </div>
+                                    )}
                                     <CardHeader className="space-y-4">
                                         <div className="flex items-center gap-4">
                                             <motion.span
@@ -140,13 +161,13 @@ export function Services() {
                                         </div>
 
                                         <CardDescription className="text-sm leading-relaxed text-slate-500">
-                                            {s.description}
+                                            <span dangerouslySetInnerHTML={{ __html: s.description }} />
                                         </CardDescription>
                                     </CardHeader>
 
                                     <CardContent>
                                         <Link
-                                            href="#contact"
+                                            href="/#contact"
                                             className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-all group-hover:gap-2.5"
                                         >
                                             Learn More{" "}

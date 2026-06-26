@@ -64,7 +64,8 @@ export const ModelName = {
   Technology: 'Technology',
   Reason: 'Reason',
   Testimonial: 'Testimonial',
-  NavLink: 'NavLink'
+  NavLink: 'NavLink',
+  BlogPost: 'BlogPost'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -288,6 +289,24 @@ export const NavLinkScalarFieldEnum = {
 } as const
 
 export type NavLinkScalarFieldEnum = (typeof NavLinkScalarFieldEnum)[keyof typeof NavLinkScalarFieldEnum]
+
+
+export const BlogPostScalarFieldEnum = {
+  id: 'id',
+  badge: 'badge',
+  tag: 'tag',
+  publishedAt: 'publishedAt',
+  title: 'title',
+  excerpt: 'excerpt',
+  content: 'content',
+  imageUrl: 'imageUrl',
+  sortOrder: 'sortOrder',
+  published: 'published',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BlogPostScalarFieldEnum = (typeof BlogPostScalarFieldEnum)[keyof typeof BlogPostScalarFieldEnum]
 
 
 export const SortOrder = {

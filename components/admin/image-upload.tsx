@@ -11,7 +11,11 @@ interface ImageUploadProps {
     label?: string;
 }
 
-export function ImageUpload({ value, onChange, label = "Upload image" }: ImageUploadProps) {
+export function ImageUpload({
+    value,
+    onChange,
+    label = "Upload image",
+}: ImageUploadProps) {
     const [uploading, setUploading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -45,7 +49,7 @@ export function ImageUpload({ value, onChange, label = "Upload image" }: ImageUp
     return (
         <div className="space-y-2">
             {value ? (
-                <div className="relative w-fit">
+                <div className="relative">
                     <div className="relative h-36 w-56 overflow-hidden rounded-lg border border-slate-200">
                         <Image
                             src={value}
@@ -68,7 +72,7 @@ export function ImageUpload({ value, onChange, label = "Upload image" }: ImageUp
                     type="button"
                     onClick={() => inputRef.current?.click()}
                     disabled={uploading}
-                    className="flex h-36 w-56 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 text-sm text-slate-500 transition-colors hover:border-brand hover:text-brand disabled:opacity-60"
+                    className="flex w-xl h-72 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 text-sm text-slate-500 transition-colors hover:border-brand hover:text-brand disabled:opacity-60"
                 >
                     {uploading ? (
                         <>

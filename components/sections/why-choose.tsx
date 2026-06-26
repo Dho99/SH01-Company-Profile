@@ -38,13 +38,21 @@ type Reason = {
     description: string;
 };
 
+type Heading = { eyebrow: string; title: string };
+
 export function WhyChoose() {
     const [reasons, setReasons] = useState<Reason[]>([]);
+    const [heading, setHeading] = useState<Heading | null>(null);
 
     useEffect(() => {
-        fetch("/api/cms/reasons")
-            .then((r) => r.json())
-            .then(setReasons);
+        Promise.all([
+            fetch("/api/cms/reasons").then((r) => r.json()),
+            fetch("/api/cms/section-headings").then((r) => r.json()),
+        ]).then(([items, headings]) => {
+            setReasons(items);
+            const h = headings.find((x: { key: string }) => x.key === "whyChoose");
+            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
+        });
     }, []);
 
     if (reasons.length === 0) {
@@ -68,10 +76,10 @@ export function WhyChoose() {
                     className="lg:col-span-1"
                 >
                     <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand">
-                        Why Choose
+                        {heading?.eyebrow ?? "Why Choose"}
                     </span>
                     <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-                        LEXA?
+                        {heading?.title ?? "LEXA?"}
                     </p>
                 </motion.div>
 
@@ -106,9 +114,10 @@ export function WhyChoose() {
                                 <h3 className="text-sm font-semibold text-slate-900">
                                     {r.title}
                                 </h3>
-                                <p className="text-xs leading-relaxed text-muted-foreground">
-                                    {r.description}
-                                </p>
+                                <p
+                                    className="text-xs leading-relaxed text-muted-foreground"
+                                    dangerouslySetInnerHTML={{ __html: r.description }}
+                                />
                             </motion.div>
                         );
                     })}

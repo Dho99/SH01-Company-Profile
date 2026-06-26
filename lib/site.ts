@@ -20,13 +20,13 @@ export const site = {
 
 export const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "#about" },
-  { label: "Services", href: "#services", hasDropdown: true },
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "Technologies", href: "#technologies" },
-  { label: "Blog", href: "#blog" },
-  { label: "Career", href: "#career" },
-  { label: "Contact", href: "#contact" },
+  { label: "About Us", href: "/#about" },
+  { label: "Services", href: "/#services", hasDropdown: true },
+  { label: "Portfolio", href: "/#portfolio" },
+  { label: "Technologies", href: "/#technologies" },
+  { label: "Blog", href: "/#blog" },
+  { label: "Career", href: "/career" },
+  { label: "Contact", href: "/#contact" },
 ] as const;
 
 export const stats = [
@@ -166,20 +166,20 @@ export const testimonials = [
 export const footerNav = {
   navigation: [
     { label: "Home", href: "/" },
-    { label: "About Us", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "Portfolio", href: "#portfolio" },
-    { label: "Technologies", href: "#technologies" },
-    { label: "Blog", href: "#blog" },
-    { label: "Career", href: "#career" },
-    { label: "Contact", href: "#contact" },
+    { label: "About Us", href: "/#about" },
+    { label: "Services", href: "/#services" },
+    { label: "Portfolio", href: "/#portfolio" },
+    { label: "Technologies", href: "/#technologies" },
+    { label: "Blog", href: "/#blog" },
+    { label: "Career", href: "/#career" },
+    { label: "Contact", href: "/#contact" },
   ],
   services: [
-    { label: "Web Development", href: "#services" },
-    { label: "Mobile Development", href: "#services" },
-    { label: "System Development", href: "#services" },
-    { label: "UI/UX Design", href: "#services" },
-    { label: "IT Consulting", href: "#services" },
-    { label: "Maintenance & Support", href: "#services" },
+    { label: "Web Development", href: "/#services" },
+    { label: "Mobile Development", href: "/#services" },
+    { label: "System Development", href: "/#services" },
+    { label: "UI/UX Design", href: "/#services" },
+    { label: "IT Consulting", href: "/#services" },
+    { label: "Maintenance & Support", href: "/#services" },
   ],
 } as const;

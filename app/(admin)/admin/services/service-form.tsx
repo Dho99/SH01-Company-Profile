@@ -21,6 +21,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { TrixEditor } from "@/components/admin/trix-editor";
 
 type Props = { defaultValues?: CreateServiceInput & { id: string } };
 
@@ -80,7 +81,7 @@ export function ServiceForm({ defaultValues }: Props) {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="mt-6 max-w-lg space-y-4"
+                    className="mt-6 space-y-4"
                 >
                     <FormField
                         control={form.control}
@@ -93,11 +94,13 @@ export function ServiceForm({ defaultValues }: Props) {
                                         <option value="">
                                             Select an icon...
                                         </option>
-                                        {ICON_CATEGORIES.services.map((icon) => (
-                                            <option key={icon} value={icon}>
-                                                {icon}
-                                            </option>
-                                        ))}
+                                        {ICON_CATEGORIES.services.map(
+                                            (icon) => (
+                                                <option key={icon} value={icon}>
+                                                    {icon}
+                                                </option>
+                                            ),
+                                        )}
                                     </select>
                                 </FormControl>
                                 <FormMessage />
@@ -126,10 +129,10 @@ export function ServiceForm({ defaultValues }: Props) {
                             <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <textarea
-                                        className={inputClass}
-                                        rows={3}
-                                        {...field}
+                                    <TrixEditor
+                                        id="service-description"
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                     />
                                 </FormControl>
                                 <FormMessage />
