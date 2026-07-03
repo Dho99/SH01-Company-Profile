@@ -25,7 +25,7 @@ export const navLinks = [
   { label: "Portfolio", href: "#portfolio" },
   { label: "Technologies", href: "#technologies" },
   { label: "Blog", href: "#blog" },
-  { label: "Career", href: "#career" },
+  { label: "Career", href: "/career" },
   { label: "Contact", href: "#contact" },
 ] as const;
 
@@ -171,7 +171,7 @@ export const footerNav = {
     { label: "Portfolio", href: "#portfolio" },
     { label: "Technologies", href: "#technologies" },
     { label: "Blog", href: "#blog" },
-    { label: "Career", href: "#career" },
+    { label: "Career", href: "/career" },
     { label: "Contact", href: "#contact" },
   ],
   services: [

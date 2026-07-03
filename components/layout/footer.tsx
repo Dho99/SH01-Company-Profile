@@ -159,9 +159,7 @@ export function Footer() {
                                         <p className="font-semibold text-white/90">
                                             {item.label}
                                         </p>
-                                        <p className="mt-1 max-w-[300px] leading-relaxed text-white/60">
-                                            {item.address}
-                                        </p>
+                                        <a href={"https://maps.google.com/?q=" + encodeURIComponent(item.address)} target="_blank" rel="noopener noreferrer" className="mt-1 block max-w-[300px] leading-relaxed text-white/60 hover:text-white transition-colors">{item.address}</a>
                                     </div>
                                 </li>
                             ))}
@@ -177,14 +175,12 @@ export function Footer() {
                         <ul className="mt-4 space-y-3 text-sm text-white/70">
                             <li className="flex items-start gap-3">
                                 <Phone className="mt-0.5 size-4 shrink-0 text-brand" />
-                                <span className="whitespace-nowrap">
-                                    {site.phone}
-                                </span>
+                                <a href={"tel:" + site.phone.replace(/\s+/g, "")} className="whitespace-nowrap hover:text-white transition-colors">{site.phone}</a>
                             </li>
 
                             <li className="flex items-start gap-3">
                                 <Mail className="mt-0.5 size-4 shrink-0 text-brand" />
-                                <span>{site.email}</span>
+                                <a href={"mailto:" + site.email} className="hover:text-white transition-colors">{site.email}</a>
                             </li>
                         </ul>
 
@@ -196,7 +192,7 @@ export function Footer() {
                             Subscribe to get the latest updates and insights.
                         </p>
 
-                        <form className="mt-4 space-y-2">
+                        <form className="mt-4 space-y-2" onSubmit={(e) => e.preventDefault()}>
                             <Input
                                 type="email"
                                 required
@@ -219,15 +215,9 @@ export function Footer() {
                     </p>
 
                     <div className="flex items-center gap-6">
-                        <Link href="#" className="hover:text-white">
-                            Privacy Policy
-                        </Link>
-                        <Link href="#" className="hover:text-white">
-                            Terms of Service
-                        </Link>
-                        <Link href="#" className="hover:text-white">
-                            Sitemap
-                        </Link>
+                        <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                        <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
+                        <Link href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</Link>
                     </div>
                 </div>
             </div>

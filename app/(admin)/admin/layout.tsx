@@ -21,6 +21,10 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
     const session = await auth();
     if (!session?.user) redirect("/login");
 
+    // Role-based access control: hanya user dengan role ADMIN yang diizinkan
+    const userRole = (session.user as unknown as Record<string, unknown>).role;
+    if (userRole !== "ADMIN") redirect("/login?error=unauthorized");
+
     return (
         <div className="flex min-h-screen bg-slate-50">
             <aside className="flex w-60 flex-col border-r bg-white">

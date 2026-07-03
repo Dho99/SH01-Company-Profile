@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Services Section', () => {
   test.beforeEach(async ({ page }) => {
     // Menavigasi ke URL target sebelum setiap pengujian
-    await page.goto('http://localhost:3001/');
+    await page.goto('/');
   });
 
   // test('Validasi Render Header & Card', async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe('Services Section', () => {
 
   test('Validasi Hover State pada Card Layanan', async ({ page }) => {
     // Menargetkan parent card spesifik yang mengandung teks "Web Development"
-    const webDevCard = page.locator('.group').filter({ hasText: 'Web Development' });
+    const webDevCard = page.locator('#services .group').filter({ hasText: 'Web Development' });
 
     // Memastikan card terlihat secara normal sebelum dilakukan hover
     await expect(webDevCard).toBeVisible();

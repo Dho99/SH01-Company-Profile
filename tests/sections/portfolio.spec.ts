@@ -7,8 +7,10 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Portfolio Section', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigasi ke URL target sebelum setiap pengujian dijalankan
-    await page.goto('http://localhost:3001/');
+    // Gunakan domcontentloaded agar Firefox tidak menunggu resource berat
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    // Tunggu section #portfolio ada di DOM sebelum test dimulai
+    await page.locator('#portfolio').waitFor({ state: 'attached', timeout: 15000 });
   });
 
   // ----------------------------------------------------------
@@ -18,8 +20,11 @@ test.describe('Portfolio Section', () => {
     // Membatasi pencarian di dalam elemen section dengan id="portfolio"
     const portfolioSection = page.locator('#portfolio');
 
+    // Scroll ke portfolio section agar masuk viewport
+    await portfolioSection.scrollIntoViewIfNeeded();
+
     // Memastikan elemen teks eyebrow "Our Portfolio" terlihat di layar
-    await expect(portfolioSection.getByText(/Our Portfolio/i)).toBeVisible();
+    await expect(portfolioSection.getByText(/Our Portfolio/i)).toBeVisible({ timeout: 10000 });
 
     // Memastikan heading H2 "Featured Projects" terlihat sebagai heading utama section
     await expect(
@@ -39,6 +44,9 @@ test.describe('Portfolio Section', () => {
     // Membatasi pencarian di dalam elemen section dengan id="portfolio"
     const portfolioSection = page.locator('#portfolio');
 
+    // Scroll ke portfolio section agar masuk viewport
+    await portfolioSection.scrollIntoViewIfNeeded();
+
     // Mencari tombol navigasi "Previous projects" menggunakan aria-label semantik
     const prevButton = portfolioSection.getByRole('button', { name: 'Previous projects' });
 
@@ -46,7 +54,7 @@ test.describe('Portfolio Section', () => {
     const nextButton = portfolioSection.getByRole('button', { name: 'Next projects' });
 
     // Memastikan tombol "Previous projects" terlihat di layar
-    await expect(prevButton).toBeVisible();
+    await expect(prevButton).toBeVisible({ timeout: 10000 });
 
     // Memastikan tombol "Next projects" terlihat di layar
     await expect(nextButton).toBeVisible();
@@ -71,8 +79,11 @@ test.describe('Portfolio Section', () => {
     // Membatasi pencarian di dalam elemen section dengan id="portfolio"
     const portfolioSection = page.locator('#portfolio');
 
+    // Scroll ke portfolio section agar masuk viewport
+    await portfolioSection.scrollIntoViewIfNeeded();
+
     // Memastikan data CMS proyek sudah ter-render dengan menunggu artikel pertama muncul
-    await expect(portfolioSection.locator('article').first()).toBeVisible();
+    await expect(portfolioSection.locator('article').first()).toBeVisible({ timeout: 15000 });
 
     // Mengisolasi pencarian ke kartu artikel yang mengandung teks "Company Profile Website"
     const targetCard = portfolioSection.locator('article').filter({
@@ -94,9 +105,11 @@ test.describe('Portfolio Section', () => {
     ).toBeVisible();
 
     // Mensimulasikan klik pada link "View Case Study" di dalam kartu tersebut
+    // CATATAN: "View Case Study" mengarah ke "#contact", verifikasi dengan toBeInViewport
     await targetCard.getByRole('link', { name: /View Case Study/i }).click();
 
-    // Memastikan URL halaman berubah dan mengandung hash '#contact'
-    await expect(page).toHaveURL(/.*#contact/);
+    // Verifikasi section #contact ter-scroll ke viewport
+    const contactSection = page.locator('#contact');
+    await expect(contactSection).toBeInViewport({ timeout: 5000 });
   });
 });

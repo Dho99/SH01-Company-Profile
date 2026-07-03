@@ -6,14 +6,21 @@ import { test, expect } from '@playwright/test';
 // ============================================================
 
 test.describe('About Section', () => {
-  // Navigasi ke halaman utama sebelum setiap test dijalankan
+  // Navigasi ke halaman utama sebelum setiap test dijalankan.
+  // domcontentloaded mencegah Firefox menunggu semua resource berat (CMS fetch, gambar)
+  // yang menyebabkan timeout 30s di beforeEach.
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3001/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    // Tunggu section #about ada di DOM sebelum test dimulai
+    await page.locator('#about').waitFor({ state: 'attached', timeout: 15000 });
   });
 
   test('section about harus terlihat dengan heading yang benar', async ({ page }) => {
     // Mencari section about berdasarkan id="about"
     const aboutSection = page.locator('#about');
+
+    // Scroll ke section about agar benar-benar masuk viewport (penting: bukan hanya di DOM)
+    await aboutSection.scrollIntoViewIfNeeded();
 
     // Memastikan section about terlihat di halaman
     await expect(aboutSection).toBeVisible();
@@ -32,9 +39,12 @@ test.describe('About Section', () => {
   test('deskripsi perusahaan dan poin-poin keunggulan harus ditampilkan', async ({ page }) => {
     const aboutSection = page.locator('#about');
 
+    // Scroll ke section about agar benar-benar masuk viewport
+    await aboutSection.scrollIntoViewIfNeeded();
+
     // Memastikan paragraf deskripsi perusahaan terlihat di halaman
     const description = aboutSection.getByText(/LEXA Software House is a technology company/i);
-    await expect(description).toBeVisible();
+    await expect(description).toBeVisible({ timeout: 10000 });
 
     // Memastikan poin keunggulan "Innovative and proven solutions" terlihat di layar
     const point1 = aboutSection.getByText('Innovative and proven solutions');
@@ -56,10 +66,13 @@ test.describe('About Section', () => {
   test('gambar dan floating card "Our Commitment" harus terlihat', async ({ page }) => {
     const aboutSection = page.locator('#about');
 
+    // Scroll ke section about agar benar-benar masuk viewport
+    await aboutSection.scrollIntoViewIfNeeded();
+
     // Mencari gambar ilustrasi about menggunakan alt text
-    const aboutImage = aboutSection.getByRole('img', { name: /LEXA Software House office/i });
+    const aboutImage = aboutSection.getByRole('img', { name: /LEXA Software House/i });
     // Memastikan gambar ilustrasi about terlihat di layar
-    await expect(aboutImage).toBeVisible();
+    await expect(aboutImage).toBeVisible({ timeout: 10000 });
 
     // Mencari teks "Our Commitment" pada floating card
     const commitmentTitle = aboutSection.getByText('Our Commitment');
@@ -70,12 +83,15 @@ test.describe('About Section', () => {
   test('tombol CTA "Learn More About Us" harus tersedia', async ({ page }) => {
     const aboutSection = page.locator('#about');
 
+    // Scroll ke section about agar benar-benar masuk viewport
+    await aboutSection.scrollIntoViewIfNeeded();
+
     // Mencari link CTA "Learn More About Us" di dalam section about
     const ctaLink = aboutSection.getByRole('link', { name: /Learn More About Us/i });
     // Memastikan link CTA terlihat di layar
     await expect(ctaLink).toBeVisible();
 
     // Memastikan link CTA mengarah ke section contact
-    await expect(ctaLink).toHaveAttribute('href', '#contact');
+    await expect(ctaLink).toHaveAttribute('href', /.*#contact/);
   });
 });

@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Technologies Section', () => {
   // Navigasi ke halaman utama sebelum setiap test dijalankan
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3001/');
+    await page.goto('/');
   });
 
   test('section technologies harus terlihat dengan heading yang benar', async ({ page }) => {

@@ -1,0 +1,93 @@
+ Prompt untuk AI agent
+  Tujuan:
+  - Buat pengujian untuk role admin dengan pendekatan gabungan:
+    - e2e test untuk alur UI/fungsi utama
+    - unit test murni untuk logika yang memang lebih tepat diuji tanpa browser
+ 
+  Fokus utama:
+  1. Site Settings
+  2. Section Headings
+  3. Stats
+  4. About Points
+  5. Services
+ 
+  Tambahan:
+  - Siapkan juga file test kosong / scaffold untuk:
+    - Technologies
+    - Reasons
+    - Testimonials
+    - NavLinks
+    Walau belum dikerjakan sekarang, buat strukturnya dulu agar siap diisi nanti.
+
+  Aturan test:
+  - Gunakan e2e test secara umum untuk alur admin yang melibatkan UI, login, isi form, simpan, dan validasi hasil tampil di halaman.
+  - Gunakan unit test murni untuk kasus logika seperti:
+    - upload gambar
+    - validasi short order
+    - aturan duplicate short order dianggap gagal
+    - logika validasi lain yang tidak perlu browser
+  - Jangan buat test pembuatan dan penghapusan untuk Site Settings dan Section Headings.
+  - Untuk Stats, About Points, dan Services:
+    - buat test CRUD yang relevan
+    - cek create berhasil
+    - cek item muncul di list
+    - cek edit berhasil
+    - cek delete berhasil
+    - pastikan duplicate short order dianggap gagal
+ 
+  Site Settings:
+  - Cek apakah logo dan hero image saat ini tampil sebagai placeholder/default.
+  - Cek apakah perubahan pada kolom upload logo dan hero image bisa disimpan dan berubah.
+  - Cek upload gambar termasuk:
+    - file valid berhasil upload
+    - file invalid ditolak
+    - ukuran maksimum file
+  - Jika batas ukuran maksimum tidak ada di kode, jangan mengarang angka; cari batas yang benar-benar dipakai implementasi, atau laporkan bahwa limit belum ada.
+ 
+  Section Headings:
+  - Cek apakah eyebrow dan title bisa diedit.
+  - Cek tombol Save berjalan dan perubahan tersimpan.
+ 
+  Stats:
+  - Cek create stat baru berhasil.
+  - Cek stat baru terlihat di daftar.
+  - Cek edit stat berhasil.
+  - Cek delete stat berhasil.
+  - Cek short order tidak boleh duplicate.
+ 
+  About Points:
+  - Cek create about point baru berhasil.
+  - Cek item baru terlihat di daftar.
+  - Cek edit about point berhasil.
+  - Cek delete about point berhasil.
+  - Cek short order tidak boleh duplicate.
+ 
+  Services:
+  - Cek create service baru berhasil.
+  - Cek item baru terlihat di daftar.
+  - Cek edit service berhasil.
+  - Cek delete service berhasil.
+  - Cek short order tidak boleh duplicate.
+  - Cek juga upload image service jika ada field upload.
+ 
+  Struktur file:
+  - Ikuti struktur existing di folder tests/.
+  - Kalau belum ada file, buat file kosong/scaffold dulu untuk halaman yang belum dikerjakan:
+    - tests/admin/technologies.spec.ts
+    - tests/admin/reasons.spec.ts
+    - tests/admin/testimonials.spec.ts
+    - tests/admin/nav-links.spec.ts
+    atau nama lain yang konsisten dengan pola repo ini.
+ 
+  Keluaran yang diharapkan:
+  - Tambahkan/rapikan test sesuai struktur repo.
+  - Jangan ubah behavior aplikasi kecuali jika memang diperlukan untuk membuat testable.
+  - Kalau ada gap di aplikasi yang membuat test tidak bisa dilakukan, tulis jelas gap-nya.
+ 
+  Prioritas pengerjaan:
+  1. Site Settings
+  2. Section Headings
+  3. Stats
+  4. About Points
+  5. Services
+  6. Scaffold file kosong untuk Technologies, Reasons, Testimonials, NavLinks

@@ -7,8 +7,16 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Footer Section', () => {
   test.beforeEach(async ({ page }) => {
-    // Menavigasi ke URL target sebelum setiap pengujian dijalankan
-    await page.goto('http://localhost:3001/');
+    // Gunakan domcontentloaded agar Firefox tidak menunggu semua resource berat
+    // (CMS API fetch, gambar) yang menyebabkan timeout 30s di beforeEach
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    // Tunggu footer ada di DOM terlebih dahulu (bisa dalam skeleton state dulu)
+    const footer = page.locator('footer');
+    await footer.waitFor({ state: 'attached', timeout: 15000 });
+
+    // Scroll ke footer agar masuk viewport dan CMS data mulai ter-fetch
+    await footer.scrollIntoViewIfNeeded();
   });
 
   // ----------------------------------------------------------
@@ -21,7 +29,8 @@ test.describe('Footer Section', () => {
 
     // Memastikan elemen footer selesai di-load (menunggu data CMS)
     // dengan cara memastikan teks tagline brand terlihat
-    await expect(footer.getByText(/Building digital solutions/i)).toBeVisible();
+    // Timeout ditingkatkan karena CMS data dimuat secara async
+    await expect(footer.getByText(/Building digital solutions/i)).toBeVisible({ timeout: 15000 });
 
     // Memastikan ikon sosial media LinkedIn terlihat berdasarkan aria-label
     await expect(footer.getByRole('link', { name: 'linkedin' })).toBeVisible();
@@ -45,7 +54,8 @@ test.describe('Footer Section', () => {
 
     // Memastikan data CMS nav-links sudah ter-render
     // dengan menunggu heading kolom "Navigation" muncul
-    await expect(footer.getByText('Navigation')).toBeVisible();
+    // Timeout ditingkatkan karena CMS data dimuat secara async
+    await expect(footer.getByText('Navigation')).toBeVisible({ timeout: 15000 });
 
     // Memastikan link "About Us" di kolom navigasi footer terlihat
     await expect(footer.getByRole('link', { name: 'About Us' })).toBeVisible();
@@ -64,15 +74,13 @@ test.describe('Footer Section', () => {
     const footer = page.locator('footer');
 
     // Memastikan label "Malaysia Office" terlihat di footer
-    await expect(footer.getByText('Malaysia Office')).toBeVisible();
+    // Timeout ditingkatkan karena CMS data dimuat secara async
+    await expect(footer.getByText('Malaysia Office')).toBeVisible({ timeout: 15000 });
 
     // Memastikan teks alamat Malaysia Office ter-render (menggunakan regex parsial)
     await expect(footer.getByText(/Bukit Beruang, 75450 Melaka/i)).toBeVisible();
 
-    // ⚠️ BUG REPORT: Alamat Malaysia saat ini dirender sebagai teks <p> biasa,
-    // bukan sebagai link <a href="https://maps.google.com/...">.
-    // Test ini akan GAGAL (expected: true, received: false) sampai developer
-    // membungkus elemen alamat dengan tag <a> yang mengarah ke Google Maps.
+    // Memastikan alamat Malaysia Office berupa link yang mengarah ke Google Maps
     const malaysiaLink = footer.getByRole('link', { name: /Bukit Beruang/i });
     await expect(malaysiaLink).toBeVisible();
     // Memastikan link Malaysia Office mengarah ke Google Maps
@@ -84,9 +92,7 @@ test.describe('Footer Section', () => {
     // Memastikan teks alamat Indonesia Office ter-render (menggunakan regex parsial)
     await expect(footer.getByText(/Kabupaten Tasikmalaya 46464/i)).toBeVisible();
 
-    // ⚠️ BUG REPORT: Alamat Indonesia saat ini dirender sebagai teks <p> biasa,
-    // bukan sebagai link <a href="https://maps.google.com/...">.
-    // Test ini akan GAGAL sampai developer memperbaiki komponen footer.tsx.
+    // Memastikan alamat Indonesia Office berupa link yang mengarah ke Google Maps
     const indonesiaLink = footer.getByRole('link', { name: /Tasikmalaya/i });
     await expect(indonesiaLink).toBeVisible();
     // Memastikan link Indonesia Office mengarah ke Google Maps
@@ -107,7 +113,8 @@ test.describe('Footer Section', () => {
     const subscribeButton = footer.getByRole('button', { name: 'Subscribe' });
 
     // Memastikan input field email terlihat di layar
-    await expect(emailInput).toBeVisible();
+    // Timeout ditingkatkan karena CMS data dimuat secara async
+    await expect(emailInput).toBeVisible({ timeout: 15000 });
 
     // Memastikan input field memiliki type="email" untuk validasi format bawaan browser
     await expect(emailInput).toHaveAttribute('type', 'email');
@@ -126,7 +133,7 @@ test.describe('Footer Section', () => {
     // (validasi HTML5 'required' seharusnya mencegah submit)
     await subscribeButton.click();
     // Memastikan URL tidak berubah setelah klik tanpa input (validasi browser aktif)
-    await expect(page).toHaveURL('http://localhost:3001/');
+    await expect(page).toHaveURL('/');
 
     // --- Skenario 2: Isi email valid lalu klik Subscribe ---
     // Mensimulasikan pengisian input field email dengan alamat email yang valid
@@ -150,16 +157,14 @@ test.describe('Footer Section', () => {
     const footer = page.locator('footer');
 
     // Memastikan heading "Contact Us" terlihat di footer
-    await expect(footer.getByRole('heading', { name: /Contact Us/i })).toBeVisible();
+    // Timeout ditingkatkan karena CMS data dimuat secara async
+    await expect(footer.getByRole('heading', { name: /Contact Us/i })).toBeVisible({ timeout: 15000 });
 
     // --- Validasi Link Telepon ---
     // Memastikan nomor telepon terlihat di layar
     await expect(footer.getByText(/\+62 853 2013 2014/)).toBeVisible();
 
-    // ⚠️ BUG REPORT: Nomor telepon saat ini dirender sebagai <span> biasa, bukan
-    // sebagai <a href="tel:+6285320132014">. Pengguna tidak bisa langsung menelepon
-    // dengan mengklik nomor tersebut. Test ini akan GAGAL sampai developer
-    // membungkus nomor telepon dengan tag <a href="tel:..."> di footer.tsx (L.179-183).
+    // Memastikan nomor telepon berupa link <a href="tel:...">
     const phoneLink = footer.getByRole('link', { name: /\+62 853 2013 2014/ });
     await expect(phoneLink).toBeVisible();
     // Memastikan link telepon menggunakan protokol tel: agar bisa langsung menelepon
@@ -169,10 +174,7 @@ test.describe('Footer Section', () => {
     // Memastikan alamat email terlihat di layar
     await expect(footer.getByText(/info@lexatech\.id/)).toBeVisible();
 
-    // ⚠️ BUG REPORT: Alamat email saat ini dirender sebagai <span> biasa, bukan
-    // sebagai <a href="mailto:info@lexatech.id">. Pengguna tidak bisa langsung
-    // mengirim email dengan mengklik alamat tersebut. Test ini akan GAGAL sampai
-    // developer membungkus email dengan tag <a href="mailto:..."> di footer.tsx (L.185-188).
+    // Memastikan alamat email berupa link <a href="mailto:...">
     const emailLink = footer.getByRole('link', { name: /info@lexatech\.id/ });
     await expect(emailLink).toBeVisible();
     // Memastikan link email menggunakan protokol mailto: agar bisa langsung membuka email client
@@ -187,7 +189,8 @@ test.describe('Footer Section', () => {
     const footer = page.locator('footer');
 
     // Memastikan teks copyright dengan nama brand terlihat di bottom bar
-    await expect(footer.getByText(/LEXA Software House/i)).toBeVisible();
+    // Timeout ditingkatkan karena CMS data dimuat secara async
+    await expect(footer.getByText(/LEXA Software House/i)).toBeVisible({ timeout: 15000 });
 
     // Memastikan tahun berjalan (2026) ikut tercantum di teks copyright
     await expect(footer.getByText(/2026/)).toBeVisible();
@@ -196,18 +199,18 @@ test.describe('Footer Section', () => {
     const privacyLink = footer.getByRole('link', { name: 'Privacy Policy' });
     await expect(privacyLink).toBeVisible();
     // Catatan: href saat ini bernilai "#" (placeholder) — pastikan diperbarui ke URL nyata
-    await expect(privacyLink).toHaveAttribute('href', '#');
+    await expect(privacyLink).toHaveAttribute('href', '/privacy-policy');
 
     // Memastikan link "Terms of Service" terlihat dan memiliki atribut href yang valid
     const tosLink = footer.getByRole('link', { name: 'Terms of Service' });
     await expect(tosLink).toBeVisible();
     // Catatan: href saat ini bernilai "#" (placeholder) — pastikan diperbarui ke URL nyata
-    await expect(tosLink).toHaveAttribute('href', '#');
+    await expect(tosLink).toHaveAttribute('href', '/terms-of-service');
 
     // Memastikan link "Sitemap" terlihat dan memiliki atribut href yang valid
     const sitemapLink = footer.getByRole('link', { name: 'Sitemap' });
     await expect(sitemapLink).toBeVisible();
     // Catatan: href saat ini bernilai "#" (placeholder) — pastikan diperbarui ke URL nyata
-    await expect(sitemapLink).toHaveAttribute('href', '#');
+    await expect(sitemapLink).toHaveAttribute('href', '/sitemap.xml');
   });
 });
