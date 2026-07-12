@@ -31,12 +31,14 @@ async function loginAndGoToStats(page: Page) {
     page.getByRole("heading", { name: "Welcome back" })
   ).toBeVisible();
 
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(500);
   await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
   await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Sign In" }).click();
 
-  await page.waitForTimeout(2000);
+  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
+  // lebih lanjut. Menggantikan waitForTimeout(2000) yang rentan race-condition.
+  await page.waitForURL(/\/admin/, { timeout: 15000 });
 
   await page.goto("/admin/stats", { waitUntil: "domcontentloaded" });
 
@@ -84,10 +86,11 @@ test.describe("Admin – Stats CRUD", () => {
     await page.getByLabel("Sort Order").fill("999");
 
     // Submit form dan tunggu API response
+    // FIX: endpoint backend adalah /api/cms/stat (singular), bukan /cms/stats (plural).
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
-          resp.url().includes("/cms/stats") &&
+          resp.url().match(/\/api\/cms\/stat$/) !== null &&
           resp.request().method() === "POST",
         { timeout: 15000 }
       ),
@@ -141,10 +144,11 @@ test.describe("Admin – Stats CRUD", () => {
     await page.getByLabel("Value").fill(updatedValue);
 
     // Submit dan tunggu API PUT response
+    // FIX: endpoint backend adalah /api/cms/stat/<id> (singular), bukan /cms/stats/.
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
-          resp.url().includes("/cms/stats/") &&
+          resp.url().match(/\/api\/cms\/stat\/[^/]+$/) !== null &&
           resp.request().method() === "PUT",
         { timeout: 15000 }
       ),
@@ -164,9 +168,10 @@ test.describe("Admin – Stats CRUD", () => {
     await loginAndGoToStats(page);
 
     // Buat stat sementara untuk dihapus via API langsung di CMS
-    // agar test ini self-contained
+    // agar test ini self-contained.
+    // FIX: gunakan /api/cms/stat (singular) sesuai struktur folder app/api/cms/stat/.
     const createResponse = await page.evaluate(async () => {
-      const res = await fetch("/api/cms/stats", {
+      const res = await fetch("/api/cms/stat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -180,8 +185,6 @@ test.describe("Admin – Stats CRUD", () => {
       return { status: res.status, data: await res.json() };
     });
 
-    // Jika endpoint /api/cms/stats tidak ada, gunakan /api/cms/stat (singular)
-    // Keduanya ada di codebase (stat singular vs stats plural di URL yang beda)
     const itemId = createResponse.data?.data?.id as string | undefined;
 
     if (!itemId) {

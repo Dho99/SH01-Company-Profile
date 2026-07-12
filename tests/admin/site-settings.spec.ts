@@ -24,14 +24,15 @@ async function loginAndGoToSiteSettings(page: Page) {
     page.getByRole("heading", { name: "Welcome back" })
   ).toBeVisible();
 
-  // Tunggu hydration React selesai sebelum fill form
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(500);
   await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
   await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Sign In" }).click();
 
-  // Tunggu proses login selesai
-  await page.waitForTimeout(2000);
+  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
+  // lebih lanjut. Menggantikan waitForTimeout(2000) yang rentan race-condition
+  // dan menyebabkan middleware me-redirect kembali ke /login.
+  await page.waitForURL(/\/admin/, { timeout: 15000 });
 
   await page.goto("/admin/site-setting", { waitUntil: "domcontentloaded" });
 
@@ -88,9 +89,11 @@ test.describe("Admin – Site Settings", () => {
 
     const newSiteName = `LEXA Tech ${Date.now()}`;
 
-    // Isi field Site Name
-    const siteNameInput = page.locator("#name");
-    await siteNameInput.fill(newSiteName);
+    // Isi field Site Name.
+    // FIX: form menggunakan label "Site Name", bukan id="name".
+    // Locator page.locator("#name") tidak menemukan elemen dan fill() diam-diam
+    // gagal, membuat waitForResponse timeout karena API tidak pernah dipanggil.
+    await page.getByLabel("Site Name").fill(newSiteName);
 
     // Klik Save Changes dan tunggu request API selesai
     const [response] = await Promise.all([

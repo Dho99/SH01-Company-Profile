@@ -1,0 +1,41 @@
+================================================================================
+  LAPORAN ANALISIS KEGAGALAN PLAYWRIGHT TEST
+  Tanggal: 2026-07-12
+================================================================================
+
+Berdasarkan analisis log eksekusi terbaru dari folder `test-results/`, kegagalan test dapat diklasifikasikan secara tegas ke dalam dua kategori: kegagalan penulisan skrip pengujian (test code) dan kegagalan dari kode aplikasi itu sendiri (Backend/Frontend).
+
+────────────────────────────────────────────────────────────────────────────────
+KATEGORI 1: KEGAGALAN PENULISAN KODE TES (Test Code Authoring Failures)
+────────────────────────────────────────────────────────────────────────────────
+
+1. Filter URL `waitForResponse` yang Keliru (Regresi Test)
+   - File: `tests/admin/section-headings.spec.ts`
+   - Masalah: Pada iterasi perbaikan sebelumnya, filter URL diubah dari bentuk plural (`/cms/section-headings`) menjadi singular (`/cms/section-heading`). Padahal, endpoint API untuk fitur ini di backend memang menggunakan bentuk plural (`/api/cms/section-headings`). Akibatnya, `page.waitForResponse` pada skrip pengujian mengalami timeout karena menunggu *request* yang tidak pernah dipanggil.
+   - Solusi: Koreksi file pengujian. Kembalikan matcher URL di skrip `section-headings.spec.ts` (baris 98, 126, 146) menjadi:
+     `resp.url().includes("/cms/section-headings")`
+
+
+────────────────────────────────────────────────────────────────────────────────
+KATEGORI 2: KEGAGALAN DARI KODE APLIKASI (Backend/Frontend Authoring Failures)
+────────────────────────────────────────────────────────────────────────────────
+
+1. Bug Pemanggilan Endpoint API dari Frontend (Salah Route)
+   - Lokasi Bug: `app/(admin)/admin/stats/stat-form.tsx`
+   - File Test yang Terdampak: `tests/admin/stats.spec.ts`
+   - Masalah: Komponen form di UI mengirimkan request POST/PUT ke endpoint plural `/cms/stats`. Namun, *dynamic API route* di backend (`app/api/cms/[entity]/route.ts`) mendaftarkan skema entitas ini dalam bentuk singular, yaitu `"stat"`. Akibatnya, setiap form disubmit, API backend mengembalikan status `400 Bad Request` dengan pesan error `"Unknown entity"`. Skrip test yang mengharapkan status 200 atau munculnya data baru akan langsung gagal/timeout.
+   - Solusi (Untuk Tim Frontend):
+     Perbaiki inisialisasi URL endpoint pada komponen `stat-form.tsx` (baris 34-36) menjadi singular:
+     ```typescript
+     const endpoint = isEdit ? `/cms/stat/${defaultValues.id}` : "/cms/stat";
+     ```
+
+2. Race Condition pada Penyimpanan Session Cookie (Isu Stabilitas Auth)
+   - Lokasi Bug: Mekanisme Login/Middleware (NextAuth)
+   - File Test yang Terdampak: Hampir semua (terutama `about-points`, `site-settings`)
+   - Masalah: Playwright berhasil melakukan alur login (mengisi email, password, klik Sign In) dan dialihkan ke `/admin`. Namun, ketika Playwright langsung melakukan `page.goto()` ke halaman spesifik (seperti `/admin/about-points`), middleware Next.js secara instan me-redirect browser kembali ke halaman `/login`. Hal ini membuktikan bahwa *session cookie* terkadang lambat tersimpan di browser, sehingga middleware menganggap pengguna belum login (*flaky/race condition*).
+   - Solusi (Untuk Tim Backend/Frontend & QA):
+     - Dari sisi Aplikasi: Validasi kembali konfigurasi *cookie* pada NextAuth agar tersimpan lebih cepat/deterministik.
+     - Dari sisi Pengujian (Workaround TerbaiK): Ubah pola pengujian. Jangan melakukan login via UI (form input) pada setiap block `test`. Gunakan mekanisme **Global Setup Playwright** (`global-setup.ts`) untuk melakukan login sekali saja via API, lalu simpan *session state* (cookies) ke file `.json`. Kemudian gunakan konfigurasi `storageState: 'state.json'` agar semua test langsung menggunakan *session* yang sudah tervalidasi.
+
+================================================================================

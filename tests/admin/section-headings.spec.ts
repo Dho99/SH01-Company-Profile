@@ -24,12 +24,14 @@ async function loginAndGoToSectionHeadings(page: Page) {
     page.getByRole("heading", { name: "Welcome back" })
   ).toBeVisible();
 
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(500);
   await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
   await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Sign In" }).click();
 
-  await page.waitForTimeout(2000);
+  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
+  // lebih lanjut. Menggantikan waitForTimeout(2000) yang rentan race-condition.
+  await page.waitForURL(/\/admin/, { timeout: 15000 });
 
   await page.goto("/admin/section-headings", { waitUntil: "domcontentloaded" });
 
@@ -83,16 +85,18 @@ test.describe("Admin – Section Headings", () => {
     // Ambil form pertama (card pertama)
     const firstCard = page.locator("form").first();
 
-    // Ambil input eyebrow di dalam card pertama
-    const eyebrowInput = firstCard
-      .getByLabel("Eyebrow", { exact: true })
-      .or(firstCard.locator("input[name='eyebrow']"));
+    // Ambil input eyebrow di dalam card pertama.
+    // FIX: hapus .or() yang ambigu — gunakan getByLabel saja sebagai satu
+    // selector yang pasti. Jika getByLabel tidak bekerja, debug via snapshot.
+    const eyebrowInput = firstCard.getByLabel("Eyebrow", { exact: true });
 
     // Isi nilai baru
     const newEyebrow = `Updated Eyebrow ${Date.now()}`;
     await eyebrowInput.fill(newEyebrow);
 
-    // Klik Save dan tunggu API response
+    // Klik Save dan tunggu API response.
+    // Endpoint backend: PUT /api/cms/section-headings (plural, sesuai
+    // app/api/cms/section-headings/route.ts yang terdaftar di backend).
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
@@ -116,13 +120,13 @@ test.describe("Admin – Section Headings", () => {
 
     const firstCard = page.locator("form").first();
 
-    const titleInput = firstCard
-      .getByLabel("Title", { exact: true })
-      .or(firstCard.locator("input[name='title']"));
+    // FIX: hapus .or() ambigu — gunakan getByLabel saja.
+    const titleInput = firstCard.getByLabel("Title", { exact: true });
 
     const newTitle = `Updated Title ${Date.now()}`;
     await titleInput.fill(newTitle);
 
+    // Endpoint backend: PUT /api/cms/section-headings (plural).
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
@@ -146,7 +150,7 @@ test.describe("Admin – Section Headings", () => {
 
     const firstCard = page.locator("form").first();
 
-    // Klik Save
+    // Klik Save. Endpoint backend: PUT /api/cms/section-headings (plural).
     await Promise.all([
       page.waitForResponse(
         (resp) =>

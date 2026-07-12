@@ -30,12 +30,15 @@ async function loginAndGoToAboutPoints(page: Page) {
     page.getByRole("heading", { name: "Welcome back" })
   ).toBeVisible();
 
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(500);
   await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
   await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Sign In" }).click();
 
-  await page.waitForTimeout(2000);
+  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
+  // lebih lanjut. Ini deterministik dan menggantikan waitForTimeout(2000)
+  // yang sering gagal di Chromium maupun Firefox karena race-condition sesi.
+  await page.waitForURL(/\/admin/, { timeout: 15000 });
 
   await page.goto("/admin/about-points", { waitUntil: "domcontentloaded" });
 
@@ -92,8 +95,12 @@ test.describe("Admin – About Points CRUD", () => {
     // Setelah create, harus redirect ke daftar
     await expect(page).toHaveURL(/\/admin\/about-points$/, { timeout: 10000 });
 
-    // Item baru harus muncul di daftar
-    await expect(page.getByText(uniqueText)).toBeVisible({ timeout: 10000 });
+    // Item baru harus muncul di daftar.
+    // FIX: scope ke tbody agar tidak mencocokkan textarea hidden yang belum
+    // di-unmount dari DOM (mencegah strict mode violation — 2 elemen cocok).
+    await expect(
+      page.locator("tbody").getByText(uniqueText)
+    ).toBeVisible({ timeout: 10000 });
   });
 
   // ----------------------------------------------------------
