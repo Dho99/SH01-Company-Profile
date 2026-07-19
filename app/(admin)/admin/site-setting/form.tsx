@@ -159,8 +159,9 @@ export function SiteSettingForm({ settings }: Props) {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-10">
         {FIELDS.map((group) => (
-          <fieldset key={group.section}>
-            <legend className="text-lg font-semibold text-slate-900">
+          <fieldset key={group.section}
+          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <legend className="px-2 text-lg font-semibold text-slate-900">
               {group.section}
             </legend>
 
@@ -201,8 +202,8 @@ export function SiteSettingForm({ settings }: Props) {
           </fieldset>
         ))}
 
-        <fieldset>
-          <legend className="text-lg font-semibold text-slate-900">
+        <fieldset className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <legend className="px-2 text-lg font-semibold text-slate-900">
             Images
           </legend>
 
@@ -233,13 +234,15 @@ export function SiteSettingForm({ settings }: Props) {
           </div>
         </fieldset>
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-brand px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 disabled:opacity-50"
-        >
-          {pending ? "Saving..." : "Save Changes"}
-        </button>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-md bg-brand px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 disabled:opacity-50"
+          >
+            {pending ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </form>
     </div>
   );
