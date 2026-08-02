@@ -1,5 +1,7 @@
 "use client";
 
+import { ReactNode } from "react";
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,15 +14,15 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { Trash2 } from "lucide-react";
-
 type DeleteConfirmDialogProps = {
+    children: ReactNode;
     title?: string;
     description?: string;
     onConfirm: () => void | Promise<void>;
 };
 
 export function DeleteConfirmDialog({
+    children,
     title = "Delete Item",
     description = "This action cannot be undone. This will permanently delete this item.",
     onConfirm,
@@ -28,17 +30,14 @@ export function DeleteConfirmDialog({
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <button
-                    type="button"
-                    className="rounded p-1 text-slate-400 transition-colors hover:text-red-600"
-                >
-                    <Trash2 className="size-4" />
-                </button>
+                {children}
             </AlertDialogTrigger>
 
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>{title}</AlertDialogTitle>
+                    <AlertDialogTitle>
+                        {title}
+                    </AlertDialogTitle>
 
                     <AlertDialogDescription>
                         {description}

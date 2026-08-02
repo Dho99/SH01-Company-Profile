@@ -10,6 +10,7 @@ import { WhyChoose } from "@/components/sections/why-choose";
 import { Blog } from "@/components/sections/blog";
 import { Testimonials } from "@/components/sections/testimonials";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { ChatBot } from "@/components/chatbot/chatbot";
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
       </main>
       <Footer />
       <ScrollToTop />
+      <ChatBot />
     </>
   );
 }
