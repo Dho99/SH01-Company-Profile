@@ -32,11 +32,11 @@ export function Reveal({
     ref,
     ...props
 }: RevealProps) {
-    const MotionTag = motionMap[as];
+    const MotionTag = motionMap[as] as typeof m.div;
 
     return (
         <LazyMotion features={domAnimation}>
-            <MotionTag ref={ref as never} {...(props as never)}>
+            <MotionTag ref={ref as React.Ref<HTMLDivElement>} {...props}>
                 {children}
             </MotionTag>
         </LazyMotion>
