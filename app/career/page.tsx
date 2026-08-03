@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -21,12 +19,11 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { motion } from "framer-motion";
-
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -157,7 +154,7 @@ export default function CareerPage() {
         {/* Hero */}
         <section className="relative overflow-hidden bg-white pt-12 pb-10 lg:pt-14 lg:pb-12">
           <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-            <motion.div
+            <Reveal
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease }}
@@ -200,9 +197,9 @@ export default function CareerPage() {
                   </Link>
                 </Button>
               </div>
-            </motion.div>
+            </Reveal>
 
-            <motion.div
+            <Reveal
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease }}
@@ -210,7 +207,7 @@ export default function CareerPage() {
             >
               <div className="relative aspect-[16/10] overflow-hidden rounded-[32px] bg-slate-100 shadow-[0_24px_70px_rgba(15,23,42,0.14)] ring-1 ring-slate-200">
                 <Image
-                  src="/About.png"
+                  src="/About.webp"
                   alt="Career at LEXA"
                   fill
                   priority
@@ -227,7 +224,7 @@ export default function CareerPage() {
                   />
                 ))}
               </div>
-            </motion.div>
+            </Reveal>
           </div>
         </section>
 
@@ -252,7 +249,7 @@ export default function CareerPage() {
                 const Icon = item.icon;
 
                 return (
-                  <motion.div
+                  <Reveal
                     key={item.title}
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -271,7 +268,7 @@ export default function CareerPage() {
                     <p className="mt-3 text-sm leading-7 text-slate-600">
                       {item.description}
                     </p>
-                  </motion.div>
+                  </Reveal>
                 );
               })}
             </div>
@@ -335,7 +332,7 @@ export default function CareerPage() {
                 const Icon = item.icon;
 
                 return (
-                  <motion.div
+                  <Reveal
                     key={item.title}
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -354,7 +351,7 @@ export default function CareerPage() {
                     <p className="mt-3 text-xs leading-6 text-slate-600">
                       {item.description}
                     </p>
-                  </motion.div>
+                  </Reveal>
                 );
               })}
             </div>
@@ -368,7 +365,7 @@ export default function CareerPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-[#061b49] via-[#0a3c91]/90 to-transparent" />
 
               <Image
-                src="/About.png"
+                src="/About.webp"
                 alt="LEXA work culture"
                 fill
                 className="object-cover object-right opacity-35"
@@ -550,7 +547,7 @@ function OpportunityCard({
   linkText: string;
 }) {
   return (
-    <motion.div
+    <Reveal
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
@@ -584,6 +581,6 @@ function OpportunityCard({
       >
         {linkText} <ArrowRight className="size-4" />
       </Link>
-    </motion.div>
+    </Reveal>
   );
 }

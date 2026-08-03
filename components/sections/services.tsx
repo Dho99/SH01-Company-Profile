@@ -1,9 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 
 import Image from "next/image";
 import {
@@ -15,18 +11,9 @@ import {
 } from "@/components/ui/card";
 import { SectionHeading } from "@/components/section-heading";
 import { CmsIcon } from "@/components/cms-icon";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-const gridContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.09 } },
-};
-
-const cardVariant = {
-    hidden: { opacity: 0, y: 36 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
-};
 
 const tints = [
     "bg-blue-50 text-blue-600",
@@ -47,20 +34,14 @@ type Service = {
 
 type Heading = { eyebrow: string; title: string };
 
-export function Services() {
-    const [services, setServices] = useState<Service[]>([]);
-    const [heading, setHeading] = useState<Heading | null>(null);
-
-    useEffect(() => {
-        Promise.all([
-            fetch("/api/cms/services").then((r) => r.json()),
-            fetch("/api/cms/section-headings").then((r) => r.json()),
-        ]).then(([items, headings]) => {
-            setServices(items);
-            const h = headings.find((x: { key: string }) => x.key === "services");
-            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
-        });
-    }, []);
+export function Services({
+    items,
+    heading,
+}: {
+    items: Service[];
+    heading?: Heading;
+}) {
+    const services = items;
 
     if (services.length === 0) {
         return (
@@ -82,7 +63,7 @@ export function Services() {
     return (
         <section id="services" className="bg-slate-50 py-12 lg:py-14">
             <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
-                <motion.div
+                <Reveal
                     initial={{ opacity: 0, y: 28 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
@@ -92,21 +73,22 @@ export function Services() {
                         eyebrow={heading?.eyebrow ?? "Our Services"}
                         title={heading?.title ?? "Solutions We Provide"}
                     />
-                </motion.div>
+                </Reveal>
 
-                <motion.div
-                    variants={gridContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-60px" }}
-                    className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-                >
+                <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {services.map((s, index) => {
                         const tint = tints[index % tints.length];
                         return (
-                            <motion.div
+                            <Reveal
                                 key={s.id}
-                                variants={cardVariant}
+                                initial={{ opacity: 0, y: 36 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-60px" }}
+                                transition={{
+                                    duration: 0.6,
+                                    delay: index * 0.09,
+                                    ease,
+                                }}
                                 whileHover={{
                                     y: -6,
                                     transition: {
@@ -130,7 +112,8 @@ export function Services() {
                                     )}
                                     <CardHeader className="space-y-4">
                                         <div className="flex items-center gap-4">
-                                            <motion.span
+                                            <Reveal
+                                                as="span"
                                                 whileHover={{
                                                     scale: 1.12,
                                                     rotate: 6,
@@ -143,7 +126,7 @@ export function Services() {
                                                 className={`inline-flex size-12 shrink-0 items-center justify-center rounded-xl ${tint}`}
                                             >
                                                 <CmsIcon name={s.icon} size={24} />
-                                            </motion.span>
+                                            </Reveal>
 
                                             <CardTitle className="text-lg leading-snug text-slate-900">
                                                 {s.title}
@@ -165,10 +148,10 @@ export function Services() {
                                         </Link>
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </Reveal>
                         );
                     })}
-                </motion.div>
+                </div>
             </div>
         </section>
     );

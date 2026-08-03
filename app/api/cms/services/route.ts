@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { serviceSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function GET() {
     try {
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
         }
         const created = await prisma.service.create({ data: parsed.data });
+        revalidateCms("services");
         return NextResponse.json({ success: true, data: created });
     } catch (error) {
         console.error("[POST /api/cms/services]", error);

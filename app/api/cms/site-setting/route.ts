@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { siteSettingSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function GET() {
     try {
@@ -39,6 +40,7 @@ export async function PUT(request: Request) {
             update: parsed.data,
             create: { id: "singleton", ...parsed.data },
         });
+        revalidateCms("site-setting");
 
         return NextResponse.json({ success: true, data });
     } catch (error) {

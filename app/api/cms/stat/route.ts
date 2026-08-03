@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { statSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 import { normalizeIconName } from "@/lib/icon";
 
 export async function GET() {
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
         }
         const created = await prisma.stat.create({ data: parsed.data });
+        revalidateCms("stat");
         return NextResponse.json({ success: true, data: created });
     } catch (error) {
         console.error("[POST /api/cms/stat]", error);

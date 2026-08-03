@@ -12,6 +12,7 @@ import {
 } from "@/lib/cms/schemas";
 import { normalizeIconName } from "@/lib/icon";
 import type { ZodSchema } from "zod";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 const SCHEMAS: Record<string, ZodSchema> = {
     stat: statSchema,
@@ -119,6 +120,7 @@ export async function POST(
         const created = await model.create({
             data: parsed.data as Record<string, unknown>,
         });
+        revalidateCms(entity);
         return NextResponse.json({ success: true, data: created });
     } catch (error) {
         console.error("[POST /api/cms/[entity]]", error);

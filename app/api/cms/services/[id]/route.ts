@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { serviceSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -16,6 +17,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
         }
         const updated = await prisma.service.update({ where: { id }, data: parsed.data });
+        revalidateCms("services");
         return NextResponse.json({ success: true, data: updated });
     } catch (error) {
         console.error("[PUT /api/cms/services/[id]]", error);
@@ -27,6 +29,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     try {
         const { id } = await params;
         const deleted = await prisma.service.delete({ where: { id } });
+        revalidateCms("services");
         return NextResponse.json({ success: true, data: deleted });
     } catch (error) {
         console.error("[DELETE /api/cms/services/[id]]", error);
