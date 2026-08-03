@@ -10,6 +10,7 @@ import { WhyChoose } from "@/components/sections/why-choose";
 import { Blog } from "@/components/sections/blog";
 import { Testimonials } from "@/components/sections/testimonials";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { ChatBot } from "@/components/chatbot/chatbot";
 import {
     getSiteSetting,
     getSectionHeadings,
@@ -66,22 +67,13 @@ export default async function Home() {
                 <Hero data={siteSetting} />
                 <Stats items={stats} />
                 <About site={siteSetting} points={aboutPoints} />
-                <Services
-                    items={services}
-                    heading={headingFor("services")}
-                />
-                <Portfolio
-                    items={projects}
-                    heading={headingFor("portfolio")}
-                />
+                <Services items={services} heading={headingFor("services")} />
+                <Portfolio items={projects} heading={headingFor("portfolio")} />
                 <Technologies
                     items={technologies}
                     heading={headingFor("technologies")}
                 />
-                <WhyChoose
-                    items={reasons}
-                    heading={headingFor("whyChoose")}
-                />
+                <WhyChoose items={reasons} heading={headingFor("whyChoose")} />
                 <Blog posts={blogPosts} />
                 <Testimonials
                     items={testimonials}
@@ -90,6 +82,7 @@ export default async function Home() {
             </main>
             <Footer />
             <ScrollToTop />
+            <ChatBot />
         </>
     );
 }
