@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { blogPostSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function GET() {
     try {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
         const created = await prisma.blogPost.create({
             data: { ...rest, publishedAt: new Date(publishedAt) },
         });
+        revalidateCms("blog-posts");
         return NextResponse.json({ success: true, data: created });
     } catch (error) {
         console.error("[POST /api/cms/blog-posts]", error);

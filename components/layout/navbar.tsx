@@ -51,24 +51,6 @@ function normalizeHref(href: string) {
   return href;
 }
 
-function getLinksFromResponse(data: unknown): NavLink[] {
-  if (Array.isArray(data)) return data as NavLink[];
-
-  if (data && typeof data === "object") {
-    const response = data as {
-      data?: unknown;
-      navLinks?: unknown;
-      items?: unknown;
-    };
-
-    if (Array.isArray(response.data)) return response.data as NavLink[];
-    if (Array.isArray(response.navLinks)) return response.navLinks as NavLink[];
-    if (Array.isArray(response.items)) return response.items as NavLink[];
-  }
-
-  return [];
-}
-
 function normalizeNavLinks(links: NavLink[]) {
   const headerLinks = links
     .filter((link) => !link.group || link.group === "HEADER")
@@ -88,26 +70,20 @@ function normalizeNavLinks(links: NavLink[]) {
   return headerLinks.length > 0 ? headerLinks : fallbackNavLinks;
 }
 
-export function Navbar() {
+export function Navbar({
+  navLinks: serverNavLinks,
+}: {
+  navLinks?: NavLink[];
+}) {
   const pathname = usePathname();
-  const [navLinks, setNavLinks] = useState<NavLink[]>(fallbackNavLinks);
+  const navLinks =
+    serverNavLinks && serverNavLinks.length > 0
+      ? normalizeNavLinks(serverNavLinks)
+      : fallbackNavLinks;
   const [open, setOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("/");
   const visibleSections = useRef(new Set<string>());
-
-  useEffect(() => {
-    fetch("/api/cms/nav-links")
-      .then((r) => r.json())
-      .then((data) => {
-        const links = getLinksFromResponse(data);
-        setNavLinks(normalizeNavLinks(links));
-      })
-      .catch((error) => {
-        console.error("Failed to fetch navbar links:", error);
-        setNavLinks(fallbackNavLinks);
-      });
-  }, []);
 
   useEffect(() => {
     const updateActiveHref = () => {

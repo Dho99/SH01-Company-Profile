@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { statSchema, aboutPointSchema, serviceSchema, projectSchema, technologySchema, reasonSchema, testimonialSchema, navLinkSchema } from "@/lib/cms/schemas";
 import { normalizeIconName } from "@/lib/icon";
 import type { ZodSchema } from "zod";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 const SCHEMAS: Record<string, ZodSchema> = {
   stat: statSchema,
@@ -65,6 +66,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ enti
     }
 
     const updated = await model.update({ where: { id }, data: parsed.data as Record<string, unknown> });
+    revalidateCms(entity);
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     console.error("[PUT /api/cms/[entity]/[id]]", error);
@@ -82,6 +84,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     }
 
     const deleted = await model.delete({ where: { id } });
+    revalidateCms(entity);
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {
     console.error("[DELETE /api/cms/[entity]/[id]]", error);

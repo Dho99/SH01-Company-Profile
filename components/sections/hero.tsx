@@ -1,29 +1,11 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-const textContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
-};
-
-const textItem = {
-    hidden: { opacity: 0, y: 28, filter: "blur(4px)" },
-    show: {
-        opacity: 1,
-        y: 0,
-        filter: "blur(0px)",
-        transition: { duration: 0.7, ease },
-    },
-};
 
 type HeroData = {
     heroEyebrow: string;
@@ -37,15 +19,7 @@ type HeroData = {
     heroImageUrl: string | null;
 };
 
-export function Hero() {
-    const [data, setData] = useState<HeroData | null>(null);
-
-    useEffect(() => {
-        fetch("/api/cms/site-setting")
-            .then((r) => r.json())
-            .then(setData);
-    }, []);
-
+export function Hero({ data }: { data: HeroData | null }) {
     if (!data) {
         return (
             <section className="relative isolate overflow-hidden bg-[#06142f]">
@@ -67,7 +41,7 @@ export function Hero() {
     return (
         <section className="relative isolate overflow-hidden bg-[#06142f] text-white">
             <Image
-                src={data.heroImageUrl ?? "/Hero.png"}
+                src={data.heroImageUrl ?? "/Hero.webp"}
                 alt="Digital city background"
                 fill
                 priority
@@ -79,39 +53,45 @@ export function Hero() {
             <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(6,20,47,0.12)_0%,rgba(6,20,47,0.04)_55%,rgba(6,20,47,0.82)_100%)]" />
 
             <div className="relative mx-auto flex min-h-[560px] max-w-[1180px] items-center px-4 py-20 sm:px-6 lg:px-8">
-                <motion.div
-                    variants={textContainer}
-                    initial="hidden"
-                    animate="show"
-                    className="max-w-[560px]"
-                >
-                    <motion.p
-                        variants={textItem}
+                <div className="max-w-[560px]">
+                    <Reveal
+                        as="p"
+                        initial={{ opacity: 0, y: 28, filter: "blur(4px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.7, ease }}
                         className="text-xs font-semibold uppercase tracking-[0.28em] text-blue-200"
                     >
                         {data.heroEyebrow}
-                    </motion.p>
+                    </Reveal>
 
-                    <motion.h1
-                        variants={textItem}
+                    <Reveal
+                        as="h1"
+                        initial={{ opacity: 0, y: 28, filter: "blur(4px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.7, delay: 0.12, ease }}
                         className="mt-5 text-[42px] font-bold leading-[1.08] tracking-[-0.04em] text-white sm:text-5xl lg:text-[64px]"
                     >
                         {data.heroHeading}{" "}
                         <span className="text-blue-400">{data.heroHighlight}</span>
-                    </motion.h1>
+                    </Reveal>
 
-                    <motion.p
-                        variants={textItem}
+                    <Reveal
+                        as="p"
+                        initial={{ opacity: 0, y: 28, filter: "blur(4px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.7, delay: 0.24, ease }}
                         className="mt-6 max-w-[500px] text-sm leading-7 text-slate-200/90 sm:text-base"
                     >
                         {data.heroDescription}
-                    </motion.p>
+                    </Reveal>
 
-                    <motion.div
-                        variants={textItem}
+                    <Reveal
+                        initial={{ opacity: 0, y: 28, filter: "blur(4px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.7, delay: 0.36, ease }}
                         className="mt-8 flex flex-col gap-4 sm:flex-row"
                     >
-                        <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+                        <Reveal whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                             <Button
                                 asChild
                                 size="lg"
@@ -122,9 +102,9 @@ export function Hero() {
                                     <ArrowRight className="size-4" />
                                 </Link>
                             </Button>
-                        </motion.div>
+                        </Reveal>
 
-                        <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+                        <Reveal whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                             <Button
                                 asChild
                                 size="lg"
@@ -136,9 +116,9 @@ export function Hero() {
                                     <ArrowRight className="size-4" />
                                 </Link>
                             </Button>
-                        </motion.div>
-                    </motion.div>
-                </motion.div>
+                        </Reveal>
+                    </Reveal>
+                </div>
             </div>
         </section>
     );
