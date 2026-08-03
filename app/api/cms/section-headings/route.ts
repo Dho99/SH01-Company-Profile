@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sectionHeadingSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function GET() {
     try {
@@ -38,6 +39,7 @@ export async function PUT(request: Request) {
             update: parsed.data,
             create: parsed.data,
         });
+        revalidateCms("section-headings");
 
         return NextResponse.json({ success: true, data });
     } catch (error) {

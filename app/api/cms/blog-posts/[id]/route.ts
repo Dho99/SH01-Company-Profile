@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { blogPostSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function PUT(
     request: Request,
@@ -23,6 +24,7 @@ export async function PUT(
             where: { id },
             data: { ...rest, publishedAt: new Date(publishedAt) },
         });
+        revalidateCms("blog-posts");
         return NextResponse.json({ success: true, data: updated });
     } catch (error) {
         console.error("[PUT /api/cms/blog-posts/:id]", error);
@@ -37,6 +39,7 @@ export async function DELETE(
     try {
         const { id } = await params;
         await prisma.blogPost.delete({ where: { id } });
+        revalidateCms("blog-posts");
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("[DELETE /api/cms/blog-posts/:id]", error);

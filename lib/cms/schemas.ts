@@ -1,10 +1,14 @@
 import { z } from "zod";
-import { ICON_CATEGORIES, PROJECT_CATEGORIES } from "./icons";
+import { PROJECT_CATEGORIES, ICON_NAME_PATTERN } from "./icons";
+import { normalizeIconName } from "@/lib/icon";
 
-const statIconSchema = z.enum(ICON_CATEGORIES.stats);
-const serviceIconSchema = z.enum(ICON_CATEGORIES.services);
-const reasonIconSchema = z.enum(ICON_CATEGORIES.reasons);
-const technologyIconSchema = z.enum(ICON_CATEGORIES.technologies);
+const iconSchema = z
+  .string()
+  .max(64)
+  .transform((v) => normalizeIconName(v))
+  .pipe(
+    z.string().regex(ICON_NAME_PATTERN, "Invalid icon name format"),
+  );
 
 const projectCategorySchema = z.enum(PROJECT_CATEGORIES);
 
@@ -49,7 +53,7 @@ export const sectionHeadingSchema = z.object({
 });
 
 export const statSchema = z.object({
-  icon: statIconSchema,
+  icon: iconSchema,
   value: z.string().min(1),
   label: z.string().min(1),
   sortOrder: z.number().int(),
@@ -63,7 +67,7 @@ export const aboutPointSchema = z.object({
 });
 
 export const serviceSchema = z.object({
-  icon: serviceIconSchema,
+  icon: iconSchema,
   title: z.string().min(1),
   description: z.string().min(1),
   imageUrl: optionalImageUrl,
@@ -81,7 +85,7 @@ export const projectSchema = z.object({
 });
 
 export const technologySchema = z.object({
-  icon: technologyIconSchema,
+  icon: iconSchema,
   label: z.string().min(1),
   color: z.string().min(1),
   sortOrder: z.number().int(),
@@ -89,7 +93,7 @@ export const technologySchema = z.object({
 });
 
 export const reasonSchema = z.object({
-  icon: reasonIconSchema,
+  icon: iconSchema,
   title: z.string().min(1),
   description: z.string().min(1),
   sortOrder: z.number().int(),

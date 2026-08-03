@@ -1,18 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    ArrowRight,
-    Cloud,
-    Code2,
-    Cog,
-    Palette,
-    ShieldCheck,
-    Smartphone,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 
 import Image from "next/image";
 import {
@@ -23,27 +10,19 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { SectionHeading } from "@/components/section-heading";
+import { CmsIcon } from "@/components/cms-icon";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const config: Record<string, { icon: LucideIcon; tint: string }> = {
-    code: { icon: Code2, tint: "bg-blue-50 text-blue-600" },
-    mobile: { icon: Smartphone, tint: "bg-indigo-50 text-indigo-600" },
-    system: { icon: Cog, tint: "bg-emerald-50 text-emerald-600" },
-    design: { icon: Palette, tint: "bg-amber-50 text-amber-600" },
-    consulting: { icon: Cloud, tint: "bg-sky-50 text-sky-600" },
-    support: { icon: ShieldCheck, tint: "bg-violet-50 text-violet-600" },
-};
-
-const gridContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.09 } },
-};
-
-const cardVariant = {
-    hidden: { opacity: 0, y: 36 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
-};
+const tints = [
+    "bg-blue-50 text-blue-600",
+    "bg-indigo-50 text-indigo-600",
+    "bg-emerald-50 text-emerald-600",
+    "bg-amber-50 text-amber-600",
+    "bg-sky-50 text-sky-600",
+    "bg-violet-50 text-violet-600",
+] as const;
 
 type Service = {
     id: string;
@@ -55,20 +34,14 @@ type Service = {
 
 type Heading = { eyebrow: string; title: string };
 
-export function Services() {
-    const [services, setServices] = useState<Service[]>([]);
-    const [heading, setHeading] = useState<Heading | null>(null);
-
-    useEffect(() => {
-        Promise.all([
-            fetch("/api/cms/services").then((r) => r.json()),
-            fetch("/api/cms/section-headings").then((r) => r.json()),
-        ]).then(([items, headings]) => {
-            setServices(items);
-            const h = headings.find((x: { key: string }) => x.key === "services");
-            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
-        });
-    }, []);
+export function Services({
+    items,
+    heading,
+}: {
+    items: Service[];
+    heading?: Heading;
+}) {
+    const services = items;
 
     if (services.length === 0) {
         return (
@@ -90,7 +63,7 @@ export function Services() {
     return (
         <section id="services" className="bg-slate-50 py-12 lg:py-14">
             <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
-                <motion.div
+                <Reveal
                     initial={{ opacity: 0, y: 28 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
@@ -100,23 +73,22 @@ export function Services() {
                         eyebrow={heading?.eyebrow ?? "Our Services"}
                         title={heading?.title ?? "Solutions We Provide"}
                     />
-                </motion.div>
+                </Reveal>
 
-                <motion.div
-                    variants={gridContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-60px" }}
-                    className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-                >
-                    {services.map((s) => {
-                        const entry = config[s.icon];
-                        if (!entry) return null;
-                        const { icon: Icon, tint } = entry;
+                <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {services.map((s, index) => {
+                        const tint = tints[index % tints.length];
                         return (
-                            <motion.div
+                            <Reveal
                                 key={s.id}
-                                variants={cardVariant}
+                                initial={{ opacity: 0, y: 36 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-60px" }}
+                                transition={{
+                                    duration: 0.6,
+                                    delay: index * 0.09,
+                                    ease,
+                                }}
                                 whileHover={{
                                     y: -6,
                                     transition: {
@@ -140,7 +112,8 @@ export function Services() {
                                     )}
                                     <CardHeader className="space-y-4">
                                         <div className="flex items-center gap-4">
-                                            <motion.span
+                                            <Reveal
+                                                as="span"
                                                 whileHover={{
                                                     scale: 1.12,
                                                     rotate: 6,
@@ -152,8 +125,8 @@ export function Services() {
                                                 }}
                                                 className={`inline-flex size-12 shrink-0 items-center justify-center rounded-xl ${tint}`}
                                             >
-                                                <Icon className="size-6" />
-                                            </motion.span>
+                                                <CmsIcon name={s.icon} size={24} />
+                                            </Reveal>
 
                                             <CardTitle className="text-lg leading-snug text-slate-900">
                                                 {s.title}
@@ -175,10 +148,10 @@ export function Services() {
                                         </Link>
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </Reveal>
                         );
                     })}
-                </motion.div>
+                </div>
             </div>
         </section>
     );

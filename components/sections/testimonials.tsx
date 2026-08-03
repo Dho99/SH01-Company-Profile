@@ -1,11 +1,9 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Quote, UserRound } from "lucide-react";
-import { motion } from "framer-motion";
+import { Quote, UserRound } from "lucide-react";
 
 import { SectionHeading } from "@/components/section-heading";
+import { Carousel } from "@/components/carousel";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -14,16 +12,6 @@ const avatarTints = [
     "bg-violet-50 text-violet-600",
     "bg-emerald-50 text-emerald-600",
 ];
-
-const cardContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.12 } },
-};
-
-const cardItem = {
-    hidden: { opacity: 0, x: 40 },
-    show: { opacity: 1, x: 0, transition: { duration: 0.65, ease } },
-};
 
 type Testimonial = {
     id: string;
@@ -35,31 +23,14 @@ type Testimonial = {
 
 type Heading = { eyebrow: string; title: string };
 
-export function Testimonials() {
-    const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-    const [heading, setHeading] = useState<Heading | null>(null);
-    const trackRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        Promise.all([
-            fetch("/api/cms/testimonials").then((r) => r.json()),
-            fetch("/api/cms/section-headings").then((r) => r.json()),
-        ]).then(([items, headings]) => {
-            setTestimonials(items);
-            const h = headings.find((x: { key: string }) => x.key === "testimonials");
-            if (h) setHeading({ eyebrow: h.eyebrow, title: h.title });
-        });
-    }, []);
-
-    const scroll = (dir: "left" | "right") => {
-        const el = trackRef.current;
-        if (!el) return;
-        const amount = el.clientWidth * 0.8;
-        el.scrollBy({
-            left: dir === "left" ? -amount : amount,
-            behavior: "smooth",
-        });
-    };
+export function Testimonials({
+    items,
+    heading,
+}: {
+    items: Testimonial[];
+    heading?: Heading;
+}) {
+    const testimonials = items;
 
     if (testimonials.length === 0) {
         return (
@@ -74,57 +45,45 @@ export function Testimonials() {
     return (
         <section className="bg-slate-50 py-12 lg:py-14">
             <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                    <motion.div
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-80px" }}
-                        transition={{ duration: 0.65, ease }}
-                    >
-                        <SectionHeading
-                            align="left"
-                            eyebrow={heading?.eyebrow ?? "What Clients Say"}
-                            title={heading?.title ?? "Trusted By Great Companies"}
-                        />
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: 0.2, ease }}
-                        className="flex gap-2"
-                    >
-                        <ArrowBtn dir="left" onClick={() => scroll("left")} />
-                        <ArrowBtn dir="right" onClick={() => scroll("right")} />
-                    </motion.div>
-                </div>
-
-                <motion.div
-                    ref={trackRef}
-                    variants={cardContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-60px" }}
-                    className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-3"
+                <Carousel
+                    variant="header"
+                    headerClassName="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+                    trackClassName="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-3"
+                    header={
+                        <Reveal
+                            initial={{ opacity: 0, y: 24 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-80px" }}
+                            transition={{ duration: 0.65, ease }}
+                        >
+                            <SectionHeading
+                                align="left"
+                                eyebrow={heading?.eyebrow ?? "What Clients Say"}
+                                title={heading?.title ?? "Trusted By Great Companies"}
+                            />
+                        </Reveal>
+                    }
                 >
                     {testimonials.map((t, i) => (
-                        <motion.figure
+                        <Reveal
                             key={t.id}
-                            variants={cardItem}
+                            as="figure"
+                            initial={{ opacity: 0, x: 40 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true, margin: "-60px" }}
+                            transition={{
+                                duration: 0.65,
+                                delay: i * 0.12,
+                                ease,
+                            }}
                             whileHover={{
                                 y: -4,
                                 boxShadow:
                                     "0 18px 45px -16px rgba(15,23,42,0.22)",
                             }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 280,
-                                damping: 22,
-                            }}
                             className="flex w-[88%] shrink-0 snap-start flex-col rounded-xl border bg-white p-6 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]"
                         >
-                            <motion.div
+                            <Reveal
                                 initial={{ scale: 0, rotate: -20 }}
                                 whileInView={{ scale: 1, rotate: 0 }}
                                 viewport={{ once: true }}
@@ -136,14 +95,14 @@ export function Testimonials() {
                                 }}
                             >
                                 <Quote className="size-7 text-brand/30" />
-                            </motion.div>
+                            </Reveal>
 
                             <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-slate-700">
                                 {t.quote}
                             </blockquote>
 
                             <figcaption className="mt-6 flex items-center gap-4 border-t border-slate-100 pt-5">
-                                <motion.div
+                                <Reveal
                                     whileHover={{ scale: 1.08 }}
                                     transition={{
                                         type: "spring",
@@ -162,7 +121,7 @@ export function Testimonials() {
                                     ) : (
                                         <UserRound className="size-6" />
                                     )}
-                                </motion.div>
+                                </Reveal>
                                 <div>
                                     <p className="text-sm font-semibold text-slate-900">
                                         {t.name}
@@ -172,32 +131,10 @@ export function Testimonials() {
                                     </p>
                                 </div>
                             </figcaption>
-                        </motion.figure>
+                        </Reveal>
                     ))}
-                </motion.div>
+                </Carousel>
             </div>
         </section>
-    );
-}
-
-function ArrowBtn({
-    dir,
-    onClick,
-}: {
-    dir: "left" | "right";
-    onClick: () => void;
-}) {
-    const Icon = dir === "left" ? ChevronLeft : ChevronRight;
-    return (
-        <motion.button
-            type="button"
-            onClick={onClick}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.92 }}
-            aria-label={dir === "left" ? "Previous" : "Next"}
-            className="inline-flex size-10 items-center justify-center rounded-full border bg-white text-slate-700 shadow-sm transition-colors hover:bg-brand hover:text-white"
-        >
-            <Icon className="size-5" />
-        </motion.button>
     );
 }

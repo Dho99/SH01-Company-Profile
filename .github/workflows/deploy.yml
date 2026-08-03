@@ -1,0 +1,209 @@
+name: Build & Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+env:
+  STAGING_DIR: /opt/lexa/sh01-cp-staging
+  RELEASES_DIR: /opt/lexa/sh01-cp-releases
+  APP_LINK: /opt/lexa/apps/sh01-company-profile
+  KEEP_RELEASES: 2
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://lexatech.my.id
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Generate Prisma Client
+      run: npx prisma generate
+      env:
+        DATABASE_URL: "postgresql://dummy:dummy@localhost/dummy"
+
+    - name: Build Next.js (standalone)
+      run: npx next build
+      env:
+        DATABASE_URL: "postgresql://dummy:dummy@localhost/dummy"
+
+    - name: Assemble standalone package
+      run: |
+        mkdir -p deploy-pkg
+
+        # Standalone output (server.js + pruned node_modules)
+        cp -r .next/standalone/. deploy-pkg/
+
+        # Static assets (excluded from standalone by design)
+        mkdir -p deploy-pkg/.next/static
+        cp -r .next/static/. deploy-pkg/.next/static/
+
+        # Public assets
+        mkdir -p deploy-pkg/public
+        cp -r public/. deploy-pkg/public/
+
+        echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
+        echo "📊 Breakdown:"
+        du -sh deploy-pkg/node_modules 2>/dev/null || true
+        du -sh deploy-pkg/.next/static 2>/dev/null || true
+        du -sh deploy-pkg/public 2>/dev/null || true
+        du -sh deploy-pkg/.next/server 2>/dev/null || true
+        echo "🔍 Top 10 largest in node_modules:"
+        du -sh deploy-pkg/node_modules/*/ 2>/dev/null | sort -rh | head -10 || true
+
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts 2>/dev/null
+
+    - name: Prisma migrate deploy
+      run: |
+        START_TIME=$(date +%s)
+
+        echo "==> Opening SSH tunnel (localhost:15432 → VPS:5432)"
+        ssh -f -N -L 15432:localhost:5432 \
+          -i ~/.ssh/deploy_key \
+          ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}
+        sleep 1
+
+        echo "==> Verifying tunnel connectivity"
+        if nc -z localhost 15432 2>/dev/null; then
+          echo "    ✅ Tunnel is open"
+        else
+          echo "    ❌ Tunnel failed to open"
+          exit 1
+        fi
+
+        echo "==> Checking pending migrations"
+        npx prisma migrate status 2>&1 || true
+
+        echo "==> Running prisma migrate deploy"
+        MIGRATE_EXIT=0
+        npx prisma migrate deploy 2>&1 || MIGRATE_EXIT=$?
+
+        if [ "$MIGRATE_EXIT" -eq 0 ]; then
+          echo "    ✅ Migration completed successfully"
+        else
+          echo "    ⚠️ Migration exited with code $MIGRATE_EXIT"
+        fi
+
+        echo "==> Migration status after deploy"
+        npx prisma migrate status 2>&1 || true
+
+        echo "==> Closing SSH tunnel"
+        kill $(lsof -t -i:15432) 2>/dev/null || true
+
+        END_TIME=$(date +%s)
+        echo "==> ⏱️ Prisma migrate took $((END_TIME - START_TIME))s"
+
+        exit $MIGRATE_EXIT
+      env:
+        DATABASE_URL: "postgresql://${{ secrets.DB_USERNAME }}:${{ secrets.DB_PASSWORD }}@localhost:15432/${{ secrets.DB_NAME }}"
+
+    - name: Rsync to staging
+      run: |
+        rsync -az --delete \
+          -e "ssh -i ~/.ssh/deploy_key" \
+          deploy-pkg/ \
+          ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:${{ env.STAGING_DIR }}/
+
+    - name: Deploy with atomic swap
+      uses: appleboy/ssh-action@v1.2.0
+      env:
+        STAGING_DIR: ${{ env.STAGING_DIR }}
+        RELEASES_DIR: ${{ env.RELEASES_DIR }}
+        APP_LINK: ${{ env.APP_LINK }}
+        KEEP_RELEASES: ${{ env.KEEP_RELEASES }}
+      with:
+        host: ${{ secrets.VPS_IP }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        envs: STAGING_DIR,RELEASES_DIR,APP_LINK,KEEP_RELEASES
+        script_stop: true
+        script: |
+          set -euo pipefail
+
+          RELEASE_ID=$(date +%Y%m%d_%H%M%S)
+          RELEASE_DIR="${RELEASES_DIR}/${RELEASE_ID}"
+
+          echo "==> Creating release ${RELEASE_ID} (hardlink copy)"
+          mkdir -p "${RELEASES_DIR}"
+          cp -rl "${STAGING_DIR}" "${RELEASE_DIR}"
+
+          echo "==> Ensuring read permissions for container"
+          chmod -R a+rX "${RELEASE_DIR}"
+
+          PREVIOUS_RELEASE=""
+          if [ -L "${APP_LINK}" ]; then
+            PREVIOUS_RELEASE=$(readlink -f "${APP_LINK}")
+            echo "    Previous: ${PREVIOUS_RELEASE}"
+          fi
+
+          echo "==> Swapping symlink"
+          ln -sfn "${RELEASE_DIR}" "${APP_LINK}.tmp"
+          mv -Tf "${APP_LINK}.tmp" "${APP_LINK}"
+
+          echo "==> Recreating container"
+          cd /opt/lexa
+          docker compose up -d --force-recreate sh01-company-profile
+
+          echo "==> Health check (max 60s)"
+          HEALTH_OK=false
+          for i in $(seq 1 30); do
+            if docker compose exec -T sh01-company-profile \
+                 node -e "const host = process.env.HOSTNAME || '127.0.0.1'; require('http').get('http://' + host + ':3000/', (res) => { if (res.statusCode === 200 || res.statusCode === 307 || res.statusCode === 308) process.exit(0); else { console.error('Status:', res.statusCode); process.exit(1); } }).on('error', (e) => { console.error(e.message); process.exit(1); });"; then
+              HEALTH_OK=true
+              echo "    ✅ Passed (attempt ${i})"
+              break
+            fi
+            echo "    ⏳ ${i}/30..."
+            sleep 2
+          done
+
+          if [ "${HEALTH_OK}" = "false" ]; then
+            echo "==> ❌ HEALTH CHECK FAILED!"
+            echo "==> 📜 Container logs:"
+            docker compose logs --tail=50 sh01-company-profile
+            if [ -n "${PREVIOUS_RELEASE}" ] && [ -d "${PREVIOUS_RELEASE}" ]; then
+              echo "==> Rolling back to: ${PREVIOUS_RELEASE}"
+              ln -sfn "${PREVIOUS_RELEASE}" "${APP_LINK}.tmp"
+              mv -Tf "${APP_LINK}.tmp" "${APP_LINK}"
+              docker compose up -d --force-recreate sh01-company-profile
+              echo "==> ⏪ Rolled back"
+            fi
+            exit 1
+          fi
+
+
+          echo "==> Cleanup (keep ${KEEP_RELEASES})"
+          CURRENT=$(readlink -f "${APP_LINK}")
+          cd "${RELEASES_DIR}"
+          for dir in $(ls -1dt */ 2>/dev/null | tail -n +$((KEEP_RELEASES + 1))); do
+            FULL="${RELEASES_DIR}/${dir%/}"
+            if [ "${FULL}" != "${CURRENT}" ]; then
+              echo "    🗑️ ${dir}"
+              rm -rf "${dir}"
+            fi
+          done
+
+          echo "==> ✅ Deploy done! Release: ${RELEASE_ID}"
+
+    - name: Cleanup SSH key
+      if: always()
+      run: rm -f ~/.ssh/deploy_key

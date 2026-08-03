@@ -9,7 +9,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { serviceSchema } from "@/lib/cms/schemas";
 import type { CreateServiceInput } from "@/lib/cms/types";
-import { ICON_CATEGORIES } from "@/lib/cms/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,13 +21,9 @@ import {
 } from "@/components/ui/form";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { TrixEditor } from "@/components/admin/trix-editor";
+import { IconPicker } from "@/components/icon-picker";
 
 type Props = { defaultValues?: CreateServiceInput & { id: string } };
-
-const inputClass =
-    "flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
-
-const selectClass = inputClass + " [&>option]:px-3";
 
 export function ServiceForm({ defaultValues }: Props) {
     const router = useRouter();
@@ -90,18 +85,10 @@ export function ServiceForm({ defaultValues }: Props) {
                             <FormItem>
                                 <FormLabel>Icon</FormLabel>
                                 <FormControl>
-                                    <select className={selectClass} {...field}>
-                                        <option value="">
-                                            Select an icon...
-                                        </option>
-                                        {ICON_CATEGORIES.services.map(
-                                            (icon) => (
-                                                <option key={icon} value={icon}>
-                                                    {icon}
-                                                </option>
-                                            ),
-                                        )}
-                                    </select>
+                                    <IconPicker
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
