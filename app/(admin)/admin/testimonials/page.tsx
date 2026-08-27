@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import api from "@/lib/api/api";
 import { apiDelete } from "@/lib/api/cms";
+import { DeleteConfirmDialog } from "@/components/admin/delete-confirm-dialog";
 import { toast } from "sonner";
 
 type Testimonial = { id: string; name: string; role: string };
@@ -61,9 +62,18 @@ export default function TestimonialsListPage() {
                                         <Link href={`/admin/testimonials/${item.id}/edit`} className="rounded p-1 text-slate-400 hover:text-blue-600">
                                             <Pencil className="size-4" />
                                         </Link>
-                                        <button type="button" onClick={() => handleDelete(item.id)} className="rounded p-1 text-slate-400 hover:text-red-600">
-                                            <Trash2 className="size-4" />
-                                        </button>
+                                        <DeleteConfirmDialog
+    title="Delete Testimonials"
+    description="Are you sure you want to delete this testimonial? This action cannot be undone."
+    onConfirm={() => handleDelete(item.id)}
+>
+    <button
+        type="button"
+        className="rounded p-1 text-slate-400 hover:text-red-600"
+    >
+        <Trash2 className="size-4" />
+    </button>
+</DeleteConfirmDialog>
                                     </div>
                                 </td>
                             </tr>

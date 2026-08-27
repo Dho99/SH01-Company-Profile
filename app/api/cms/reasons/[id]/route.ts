@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { reasonSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -15,6 +16,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
         }
         const updated = await prisma.reason.update({ where: { id }, data: parsed.data });
+        revalidateCms("reasons");
         return NextResponse.json({ success: true, data: updated });
     } catch (error) {
         console.error("[PUT /api/cms/reasons/[id]]", error);
@@ -26,6 +28,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     try {
         const { id } = await params;
         const deleted = await prisma.reason.delete({ where: { id } });
+        revalidateCms("reasons");
         return NextResponse.json({ success: true, data: deleted });
     } catch (error) {
         console.error("[DELETE /api/cms/reasons/[id]]", error);

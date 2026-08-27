@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import api from "@/lib/api/api";
 import { apiDelete } from "@/lib/api/cms";
+import { DeleteConfirmDialog } from "@/components/admin/delete-confirm-dialog";
 import { toast } from "sonner";
 
 type NavLink = { id: string; label: string; href: string; group: string; hasDropdown: boolean; sortOrder: number };
@@ -66,9 +67,18 @@ export default function NavLinksListPage() {
                                         <Link href={`/admin/nav-links/${item.id}/edit`} className="rounded p-1 text-slate-400 hover:text-blue-600">
                                             <Pencil className="size-4" />
                                         </Link>
-                                        <button type="button" onClick={() => handleDelete(item.id)} className="rounded p-1 text-slate-400 hover:text-red-600">
-                                            <Trash2 className="size-4" />
-                                        </button>
+                                        <DeleteConfirmDialog
+    title="Delete Nav Links"
+    description="Are you sure you want to delete this navigation link? This action cannot be undone."
+    onConfirm={() => handleDelete(item.id)}
+>
+    <button
+        type="button"
+        className="rounded p-1 text-slate-400 hover:text-red-600"
+    >
+        <Trash2 className="size-4" />
+    </button>
+</DeleteConfirmDialog>
                                     </div>
                                 </td>
                             </tr>

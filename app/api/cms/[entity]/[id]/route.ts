@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { statSchema, aboutPointSchema, serviceSchema, projectSchema, technologySchema, reasonSchema, testimonialSchema, navLinkSchema } from "@/lib/cms/schemas";
+import { normalizeIconName } from "@/lib/icon";
 import type { ZodSchema } from "zod";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 const SCHEMAS: Record<string, ZodSchema> = {
   stat: statSchema,
@@ -13,6 +15,12 @@ const SCHEMAS: Record<string, ZodSchema> = {
   testimonials: testimonialSchema,
   "nav-links": navLinkSchema,
 };
+
+const ICON_ENTITIES = new Set([
+  "services",
+  "technologies",
+  "reasons",
+]);
 
 const prismaModels: Record<string, unknown> = {
   stat: prisma.stat,
@@ -41,8 +49,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ enti
     }
 
     const raw = await request.json() as Record<string, unknown>;
-    for (const field of ["imageUrl", "avatarUrl"]) {
+    for (const field of ["imageUrl", "avatarUrl", "icon"]) {
       if (raw[field] === "") raw[field] = null;
+    }
+    if (raw["icon"] != null && ICON_ENTITIES.has(entity)) {
+      raw["icon"] = normalizeIconName(raw["icon"] as string);
     }
     const parsed = schema.safeParse(raw);
 
@@ -55,6 +66,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ enti
     }
 
     const updated = await model.update({ where: { id }, data: parsed.data as Record<string, unknown> });
+    revalidateCms(entity);
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     console.error("[PUT /api/cms/[entity]/[id]]", error);
@@ -72,6 +84,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     }
 
     const deleted = await model.delete({ where: { id } });
+    revalidateCms(entity);
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {
     console.error("[DELETE /api/cms/[entity]/[id]]", error);
