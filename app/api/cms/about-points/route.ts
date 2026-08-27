@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { aboutPointSchema } from "@/lib/cms/schemas";
+import { revalidateCms } from "@/lib/cms/revalidate";
 
 export async function GET() {
     try {
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
         }
         const created = await prisma.aboutPoint.create({ data: parsed.data });
+        revalidateCms("about-points");
         return NextResponse.json({ success: true, data: created });
     } catch (error) {
         console.error("[POST /api/cms/about-points]", error);

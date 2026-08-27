@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { IconType } from "react-icons";
@@ -18,14 +15,15 @@ import {
     SiReact,
     SiVuedotjs,
 } from "react-icons/si";
-import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
+import { CmsIcon } from "@/components/cms-icon";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const icons: Record<string, IconType> = {
+const brandIcons: Record<string, IconType> = {
     laravel: SiLaravel,
     react: SiReact,
     nextjs: SiNextdotjs,
@@ -40,21 +38,6 @@ const icons: Record<string, IconType> = {
     git: SiGit,
 };
 
-const gridContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.07 } },
-};
-
-const iconItem = {
-    hidden: { opacity: 0, scale: 0.6, y: 16 },
-    show: {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        transition: { type: "spring" as const, stiffness: 260, damping: 20 },
-    },
-};
-
 type Technology = {
     id: string;
     icon: string;
@@ -62,14 +45,16 @@ type Technology = {
     color: string;
 };
 
-export function Technologies() {
-    const [technologies, setTechnologies] = useState<Technology[]>([]);
+type Heading = { eyebrow: string; title: string };
 
-    useEffect(() => {
-        fetch("/api/cms/technologies")
-            .then((r) => r.json())
-            .then(setTechnologies);
-    }, []);
+export function Technologies({
+    items,
+    heading,
+}: {
+    items: Technology[];
+    heading?: Heading;
+}) {
+    const technologies = items;
 
     if (technologies.length === 0) {
         return (
@@ -84,39 +69,41 @@ export function Technologies() {
     return (
         <section id="technologies" className="bg-slate-50 py-12 lg:py-14">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <motion.div
+                <Reveal
                     initial={{ opacity: 0, y: 28 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
                     transition={{ duration: 0.65, ease }}
                 >
                     <SectionHeading
-                        eyebrow="Technologies We Use"
-                        title="Built On a Modern Stack"
+                        eyebrow={heading?.eyebrow ?? "Technologies We Use"}
+                        title={heading?.title ?? "Built On a Modern Stack"}
                     />
-                </motion.div>
+                </Reveal>
 
-                <motion.div
+                <Reveal
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
                     transition={{ duration: 0.5, delay: 0.1, ease }}
                     className="mt-12 rounded-2xl border bg-white p-8 shadow-sm sm:p-10"
                 >
-                    <motion.ul
-                        variants={gridContainer}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, margin: "-40px" }}
-                        className="grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 lg:grid-cols-6"
-                    >
-                        {technologies.map((tech) => {
-                            const Icon = icons[tech.icon];
-                            if (!Icon) return null;
+                    <ul className="grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 lg:grid-cols-6">
+                        {technologies.map((tech, i) => {
+                            const BrandIcon = brandIcons[tech.icon];
                             return (
-                                <motion.li
+                                <Reveal
                                     key={tech.id}
-                                    variants={iconItem}
+                                    as="li"
+                                    initial={{ opacity: 0, scale: 0.6, y: 16 }}
+                                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                                    viewport={{ once: true, margin: "-40px" }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 260,
+                                        damping: 20,
+                                        delay: i * 0.05,
+                                    }}
                                     whileHover={{
                                         scale: 1.2,
                                         y: -4,
@@ -128,30 +115,40 @@ export function Technologies() {
                                     }}
                                     className="group flex flex-col items-center gap-2 cursor-default"
                                 >
-                                    <motion.div
+                                    <Reveal
+                                        as="span"
                                         whileHover={{
                                             rotate: [0, -8, 8, -4, 0],
                                         }}
                                         transition={{ duration: 0.4 }}
                                     >
-                                        <Icon
-                                            className="size-9 text-slate-400 transition-colors duration-300 group-hover:text-[var(--tw)]"
-                                            style={
-                                                {
-                                                    "--tw": tech.color,
-                                                } as React.CSSProperties
-                                            }
-                                        />
-                                    </motion.div>
+                                        {BrandIcon ? (
+                                            <BrandIcon
+                                                className="size-9 text-slate-400 transition-colors duration-300 group-hover:text-[var(--tw)]"
+                                                style={
+                                                    {
+                                                        "--tw": tech.color,
+                                                    } as React.CSSProperties
+                                                }
+                                            />
+                                        ) : (
+                                            <CmsIcon
+                                                name={tech.icon}
+                                                size={36}
+                                                className="text-slate-400 transition-colors duration-300"
+                                                style={{ "--tw": tech.color } as React.CSSProperties}
+                                            />
+                                        )}
+                                    </Reveal>
                                     <span className="text-xs font-medium text-slate-600 transition-colors group-hover:text-slate-900">
                                         {tech.label}
                                     </span>
-                                </motion.li>
+                                </Reveal>
                             );
                         })}
-                    </motion.ul>
+                    </ul>
 
-                    <motion.div
+                    <Reveal
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
@@ -163,13 +160,13 @@ export function Technologies() {
                             variant="outline"
                             className="rounded-lg"
                         >
-                            <Link href="#contact">
+                            <Link href="/#contact">
                                 View All Technologies{" "}
                                 <ArrowRight className="size-4" />
                             </Link>
                         </Button>
-                    </motion.div>
-                </motion.div>
+                    </Reveal>
+                </Reveal>
             </div>
         </section>
     );

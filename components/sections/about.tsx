@@ -1,25 +1,12 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Users } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
+import { Reveal } from "@/components/reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-const listContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-
-const listItem = {
-    hidden: { opacity: 0, x: -16 },
-    show: { opacity: 1, x: 0, transition: { duration: 0.45, ease } },
-};
 
 type SiteSetting = {
     aboutEyebrow: string;
@@ -36,20 +23,13 @@ type AboutPoint = {
     text: string;
 };
 
-export function About() {
-    const [site, setSite] = useState<SiteSetting | null>(null);
-    const [aboutPoints, setAboutPoints] = useState<AboutPoint[]>([]);
-
-    useEffect(() => {
-        Promise.all([
-            fetch("/api/cms/site-setting").then((r) => r.json()),
-            fetch("/api/cms/about-points").then((r) => r.json()),
-        ]).then(([siteData, points]) => {
-            setSite(siteData);
-            setAboutPoints(points);
-        });
-    }, []);
-
+export function About({
+    site,
+    points,
+}: {
+    site: SiteSetting | null;
+    points: AboutPoint[];
+}) {
     if (!site) {
         return (
             <section className="bg-white py-20 lg:py-28">
@@ -63,7 +43,7 @@ export function About() {
     return (
         <section id="about" className="bg-white py-16 lg:py-20">
             <div className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 lg:px-8">
-                <motion.div
+                <Reveal
                     initial={{ opacity: 0, x: -48 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
@@ -79,17 +59,19 @@ export function About() {
                         {site.aboutDescription}
                     </p>
 
-                    <motion.ul
-                        variants={listContainer}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, margin: "-80px" }}
-                        className="mt-6 space-y-3"
-                    >
-                        {aboutPoints.map((point) => (
-                            <motion.li
+                    <ul className="mt-6 space-y-3">
+                        {points.map((point, i) => (
+                            <Reveal
                                 key={point.id}
-                                variants={listItem}
+                                as="li"
+                                initial={{ opacity: 0, x: -16 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-80px" }}
+                                transition={{
+                                    duration: 0.45,
+                                    delay: i * 0.08 + 0.1,
+                                    ease,
+                                }}
                                 className="flex items-center gap-3 text-sm"
                             >
                                 <span className="inline-flex shrink-0">
@@ -98,11 +80,11 @@ export function About() {
                                 <span className="text-slate-700">
                                     {point.text}
                                 </span>
-                            </motion.li>
+                            </Reveal>
                         ))}
-                    </motion.ul>
+                    </ul>
 
-                    <motion.div
+                    <Reveal
                         initial={{ opacity: 0, y: 18 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -114,10 +96,10 @@ export function About() {
                                 <ArrowRight className="size-4" />
                             </Link>
                         </Button>
-                    </motion.div>
-                </motion.div>
+                    </Reveal>
+                </Reveal>
 
-                <motion.div
+                <Reveal
                     initial={{ opacity: 0, x: 48 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
@@ -126,7 +108,7 @@ export function About() {
                 >
                     <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 shadow-xl">
                         <Image
-                            src="/About.png"
+                            src="/About.webp"
                             alt="LEXA Software House"
                             fill
                             className="object-cover object-center"
@@ -134,7 +116,7 @@ export function About() {
                         />
                     </div>
 
-                    <motion.div
+                    <Reveal
                         initial={{ opacity: 0, y: 28, scale: 0.94 }}
                         whileInView={{ opacity: 1, y: 0, scale: 1 }}
                         viewport={{ once: true }}
@@ -159,8 +141,8 @@ export function About() {
                                 </p>
                             </div>
                         </div>
-                    </motion.div>
-                </motion.div>
+                    </Reveal>
+                </Reveal>
             </div>
         </section>
     );

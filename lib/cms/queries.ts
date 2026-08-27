@@ -76,6 +76,13 @@ export async function getNavLinks() {
   return prisma.navLink.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" } });
 }
 
+export async function getBlogPosts() {
+  "use cache";
+  cacheTag("cms:blog-posts");
+  cacheLife("hours");
+  return prisma.blogPost.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" } });
+}
+
 /* ───────── Admin (uncached) readers ───────── */
 
 export async function getAdminSiteSetting() {
