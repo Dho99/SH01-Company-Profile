@@ -124,7 +124,7 @@ export function Portfolio({
                                     <h3 className="font-semibold text-slate-900">
                                         {p.title}
                                     </h3>
-                                    <p
+                                    <div
                                         className="text-sm text-muted-foreground"
                                         dangerouslySetInnerHTML={{ __html: p.description }}
                                     />
