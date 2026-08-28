@@ -1,97 +1,209 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
 // ============================================================
-// E2E Test: About Section (@/components/sections/about)
-// Menguji visibilitas dan konten section "About Us" perusahaan
+// E2E Test: About Section (@/components/sections/about.tsx)
+//
+// Menguji visibilitas dan konten section "About" di halaman
+// utama, termasuk:
+//   - Heading & eyebrow label
+//   - Deskripsi perusahaan
+//   - Floating card "Our Commitment"
+//   - Tombol CTA "Learn More About Us"
+//
+// Strategi:
+//   - Semua locator diisolasi dalam container #about untuk
+//     mencegah strict mode violation.
+//   - API route di-mock agar komponen langsung render tanpa DB.
+//   - Scroll ke section sebelum assert agar elemen masuk viewport
+//     (penting untuk renderer animasi Framer Motion).
 // ============================================================
 
-test.describe('About Section', () => {
-  // Navigasi ke halaman utama sebelum setiap test dijalankan.
-  // domcontentloaded mencegah Firefox menunggu semua resource berat (CMS fetch, gambar)
-  // yang menyebabkan timeout 30s di beforeEach.
+// ── Data mock untuk site setting (About-related fields) ─────
+const MOCK_SITE_SETTING = {
+  id: "singleton",
+  name: "LEXA Software House",
+  tagline: "Building digital solutions for a better future.",
+  email: "info@lexatech.id",
+  phone: "+62 853 2013 2014",
+  location: "Tasikmalaya - Indonesia",
+  linkedin: "#",
+  instagram: "#",
+  facebook: "#",
+  youtube: "#",
+  heroEyebrow: "Leading, Excellence & Automation",
+  heroHeading: "Building Digital Solutions For ",
+  heroHighlight: "A Better Future",
+  heroDescription: "LEXA Software House delivers innovative solutions.",
+  heroPrimaryLabel: "Our Services",
+  heroPrimaryHref: "#services",
+  heroSecondaryLabel: "View Our Portfolio",
+  heroSecondaryHref: "#portfolio",
+  aboutEyebrow: "Company Profile",
+  aboutHeading: "About LEXA Software House",
+  aboutDescription:
+    "LEXA Software House is a technology company specializing in building digital solutions.",
+  aboutCommitmentTitle: "Our Commitment",
+  aboutCommitmentText:
+    "We are committed to delivering excellence in every project we undertake.",
+  aboutCtaLabel: "Learn More About Us",
+  aboutCtaHref: "#contact",
+  footerTagline: "Building digital solutions for a better future.",
+  footerNewsletterTitle: "Stay Updated",
+  footerNewsletterText: "Subscribe to our newsletter.",
+};
+
+// ── Data mock untuk about points (poin keunggulan) ──────────
+const MOCK_ABOUT_POINTS = [
+  { id: "1", text: "Innovative and proven solutions", sortOrder: 1, published: true },
+  { id: "2", text: "Experienced and professional team", sortOrder: 2, published: true },
+  { id: "3", text: "Client-focused approach", sortOrder: 3, published: true },
+  { id: "4", text: "Commitment to continuous support", sortOrder: 4, published: true },
+];
+
+test.describe("About Section", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    // Tunggu section #about ada di DOM sebelum test dimulai
-    await page.locator('#about').waitFor({ state: 'attached', timeout: 15000 });
+    // Mock API site-setting agar data about langsung tersedia
+    await page.route(/\/api\/cms\/site-setting/, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_SITE_SETTING),
+      });
+    });
+
+    // Mock API about-points agar poin keunggulan langsung tampil
+    await page.route(/\/api\/cms\/about-points/, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_ABOUT_POINTS),
+      });
+    });
+
+    // Mock API lainnya dengan array kosong agar tidak blocking
+    await page.route(/\/api\/cms\/section-headings/, async (route) => {
+      await route.fulfill({ contentType: "application/json", body: "[]" });
+    });
+    await page.route(/\/api\/cms\/services/, async (route) => {
+      await route.fulfill({ contentType: "application/json", body: "[]" });
+    });
+    await page.route(/\/api\/cms\/technologies/, async (route) => {
+      await route.fulfill({ contentType: "application/json", body: "[]" });
+    });
+    await page.route(/\/api\/cms\/reasons/, async (route) => {
+      await route.fulfill({ contentType: "application/json", body: "[]" });
+    });
+    await page.route(/\/api\/cms\/stat($|\/)/, async (route) => {
+      await route.fulfill({ contentType: "application/json", body: "[]" });
+    });
+
+    // Navigasi ke halaman utama; tunggu DOM selesai dimuat
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    // Pastikan container #about telah terpasang di DOM sebelum test berjalan
+    await page.locator("#about").waitFor({ state: "attached", timeout: 15000 });
   });
 
-  test('section about harus terlihat dengan heading yang benar', async ({ page }) => {
-    // Mencari section about berdasarkan id="about"
-    const aboutSection = page.locator('#about');
+  // ──────────────────────────────────────────────────────────
+  // 1. Validasi heading & eyebrow label section About
+  // ──────────────────────────────────────────────────────────
+  test("section about harus terlihat dengan heading dan eyebrow yang benar", async ({
+    page,
+  }) => {
+    // Isolasi semua locator di dalam container section #about
+    const aboutSection = page.locator("#about");
 
-    // Scroll ke section about agar benar-benar masuk viewport (penting: bukan hanya di DOM)
+    // Scroll agar section masuk viewport (diperlukan animasi Framer Motion)
     await aboutSection.scrollIntoViewIfNeeded();
 
-    // Memastikan section about terlihat di halaman
+    // Memastikan section about itu sendiri terlihat di layar
     await expect(aboutSection).toBeVisible();
 
-    // Mencari eyebrow label "Company Profile" di dalam section about
-    const eyebrow = aboutSection.getByText('Company Profile', { exact: true });
-    // Memastikan eyebrow label terlihat di layar
+    // Memastikan eyebrow label "Company Profile" tampil sesuai mock data
+    const eyebrow = aboutSection.getByText("Company Profile", { exact: true });
     await expect(eyebrow).toBeVisible();
 
-    // Mencari heading utama "About LEXA Software House" menggunakan getByRole
-    const heading = aboutSection.getByRole('heading', { name: /About LEXA/i });
-    // Memastikan heading utama section about terlihat di layar
+    // Memastikan heading utama "About LEXA Software House" terlihat di halaman
+    const heading = aboutSection.getByRole("heading", {
+      name: /About LEXA Software House/i,
+    });
     await expect(heading).toBeVisible();
   });
 
-  test('deskripsi perusahaan dan poin-poin keunggulan harus ditampilkan', async ({ page }) => {
-    const aboutSection = page.locator('#about');
-
-    // Scroll ke section about agar benar-benar masuk viewport
+  // ──────────────────────────────────────────────────────────
+  // 2. Validasi deskripsi dan poin-poin keunggulan perusahaan
+  // ──────────────────────────────────────────────────────────
+  test("deskripsi perusahaan dan poin-poin keunggulan harus ditampilkan", async ({
+    page,
+  }) => {
+    const aboutSection = page.locator("#about");
     await aboutSection.scrollIntoViewIfNeeded();
 
-    // Memastikan paragraf deskripsi perusahaan terlihat di halaman
-    const description = aboutSection.getByText(/LEXA Software House is a technology company/i);
+    // Memastikan teks deskripsi perusahaan terlihat di dalam section
+    const description = aboutSection.getByText(
+      /LEXA Software House is a technology company/i
+    );
     await expect(description).toBeVisible({ timeout: 10000 });
 
-    // Memastikan poin keunggulan "Innovative and proven solutions" terlihat di layar
-    const point1 = aboutSection.getByText('Innovative and proven solutions');
-    await expect(point1).toBeVisible();
+    // Memastikan setiap poin keunggulan dari mock data terlihat di layar
+    const expectedPoints = [
+      "Innovative and proven solutions",
+      "Experienced and professional team",
+      "Client-focused approach",
+      "Commitment to continuous support",
+    ];
 
-    // Memastikan poin keunggulan "Experienced and professional team" terlihat di layar
-    const point2 = aboutSection.getByText('Experienced and professional team');
-    await expect(point2).toBeVisible();
-
-    // Memastikan poin keunggulan "Client-focused approach" terlihat di layar
-    const point3 = aboutSection.getByText('Client-focused approach');
-    await expect(point3).toBeVisible();
-
-    // Memastikan poin keunggulan "Commitment to continuous support" terlihat di layar
-    const point4 = aboutSection.getByText('Commitment to continuous support');
-    await expect(point4).toBeVisible();
+    for (const pointText of expectedPoints) {
+      // Setiap poin harus tampil di dalam container #about
+      await expect(aboutSection.getByText(pointText)).toBeVisible();
+    }
   });
 
-  test('gambar dan floating card "Our Commitment" harus terlihat', async ({ page }) => {
-    const aboutSection = page.locator('#about');
-
-    // Scroll ke section about agar benar-benar masuk viewport
+  // ──────────────────────────────────────────────────────────
+  // 3. Validasi floating card "Our Commitment"
+  // ──────────────────────────────────────────────────────────
+  test('gambar dan floating card "Our Commitment" harus terlihat', async ({
+    page,
+  }) => {
+    const aboutSection = page.locator("#about");
     await aboutSection.scrollIntoViewIfNeeded();
 
-    // Mencari gambar ilustrasi about menggunakan alt text
-    const aboutImage = aboutSection.getByRole('img', { name: /LEXA Software House/i });
-    // Memastikan gambar ilustrasi about terlihat di layar
+    // Memastikan gambar ilustrasi "About" dengan alt text yang benar terlihat
+    const aboutImage = aboutSection.getByRole("img", {
+      name: /LEXA Software House/i,
+    });
     await expect(aboutImage).toBeVisible({ timeout: 10000 });
 
-    // Mencari teks "Our Commitment" pada floating card
-    const commitmentTitle = aboutSection.getByText('Our Commitment');
-    // Memastikan floating card "Our Commitment" terlihat di layar
+    // Memastikan judul floating card "Our Commitment" terlihat di layar
+    const commitmentTitle = aboutSection.getByText("Our Commitment");
     await expect(commitmentTitle).toBeVisible();
+
+    // Memastikan teks isi floating card juga terlihat di layar
+    const commitmentText = aboutSection.getByText(
+      /committed to delivering excellence/i
+    );
+    await expect(commitmentText).toBeVisible();
   });
 
-  test('tombol CTA "Learn More About Us" harus tersedia', async ({ page }) => {
-    const aboutSection = page.locator('#about');
-
-    // Scroll ke section about agar benar-benar masuk viewport
+  // ──────────────────────────────────────────────────────────
+  // 4. Validasi tombol CTA "Learn More About Us"
+  // ──────────────────────────────────────────────────────────
+  test('tombol CTA "Learn More About Us" harus tersedia dan mengarah ke #contact', async ({
+    page,
+  }) => {
+    const aboutSection = page.locator("#about");
     await aboutSection.scrollIntoViewIfNeeded();
 
-    // Mencari link CTA "Learn More About Us" di dalam section about
-    const ctaLink = aboutSection.getByRole('link', { name: /Learn More About Us/i });
+    // Mencari link CTA di dalam section about menggunakan semantic locator
+    const ctaLink = aboutSection.getByRole("link", {
+      name: /Learn More About Us/i,
+    });
+
     // Memastikan link CTA terlihat di layar
     await expect(ctaLink).toBeVisible();
 
-    // Memastikan link CTA mengarah ke section contact
-    await expect(ctaLink).toHaveAttribute('href', /.*#contact/);
+    // Memastikan link CTA berstatus enabled (dapat diklik)
+    await expect(ctaLink).toBeEnabled();
+
+    // Memastikan atribut href link CTA mengandung fragment #contact sesuai mock data
+    await expect(ctaLink).toHaveAttribute("href", /.*#contact/);
   });
 });
