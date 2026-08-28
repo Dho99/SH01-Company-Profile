@@ -6,7 +6,6 @@ const api = axios.create({
     headers: { "Content-Type": "application/json" },
 });
 
-// test sync fork
 
 api.interceptors.response.use(
     (res) => res,
