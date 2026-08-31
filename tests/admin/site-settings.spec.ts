@@ -19,20 +19,6 @@ const ADMIN_PASSWORD = "admin123";
 // Helper: Login dan navigasi ke halaman site settings
 // --------------------------------------------------------
 async function loginAndGoToSiteSettings(page: Page) {
-  await page.goto("/login", { waitUntil: "domcontentloaded" });
-  await expect(
-    page.getByRole("heading", { name: "Welcome back" })
-  ).toBeVisible();
-
-  await page.waitForTimeout(500);
-  await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
-  await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
-  await page.getByRole("button", { name: "Sign In" }).click();
-
-  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
-  // lebih lanjut. Menggantikan waitForTimeout(2000) yang rentan race-condition
-  // dan menyebabkan middleware me-redirect kembali ke /login.
-  await page.waitForURL(/\/admin/, { timeout: 15000 });
 
   await page.goto("/admin/site-setting", { waitUntil: "domcontentloaded" });
 
@@ -47,7 +33,7 @@ async function loginAndGoToSiteSettings(page: Page) {
 // ============================================================
 test.describe("Admin – Site Settings", () => {
   test.beforeEach(async ({ page }) => {
-    await page.context().clearCookies();
+    // test reuse session
   });
 
   // ----------------------------------------------------------
