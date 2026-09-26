@@ -17,6 +17,7 @@ import {
     MessageSquareQuote,
     Link2,
     Newspaper,
+    ShieldCheck,
 } from "lucide-react";
 
 const groups = [
@@ -99,6 +100,10 @@ const groups = [
                 icon: Newspaper,
             },
         ],
+    },
+    {
+        label: "Admin",
+        links: [{ label: "Users", href: "/admin/users", icon: ShieldCheck }],
     },
 ];
 

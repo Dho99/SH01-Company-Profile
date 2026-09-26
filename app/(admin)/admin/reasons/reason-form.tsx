@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { reasonSchema } from "@/lib/cms/schemas";
 import type { CreateReasonInput } from "@/lib/cms/types";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
     Form,
@@ -71,10 +72,12 @@ export function ReasonForm({ defaultValues }: Props) {
                 {isEdit ? "Edit Reason" : "New Reason"}
             </h1>
 
-            <Form {...form}>
+            <Card className="mt-6 w-full">
+                <CardContent className="pt-6">
+                    <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="mt-6 space-y-4"
+                    className="space-y-4"
                 >
                     <FormField
                         control={form.control}
@@ -175,6 +178,8 @@ export function ReasonForm({ defaultValues }: Props) {
                     </Button>
                 </form>
             </Form>
+                </CardContent>
+            </Card>
         </div>
     );
 }

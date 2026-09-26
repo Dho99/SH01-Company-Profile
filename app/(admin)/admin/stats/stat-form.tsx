@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { statSchema } from "@/lib/cms/schemas";
 import type { CreateStatInput } from "@/lib/cms/types";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
     Form,
@@ -74,10 +75,12 @@ export function StatForm({ defaultValues }: Props) {
                 {isEdit ? "Edit Stat" : "New Stat"}
             </h1>
 
-            <Form {...form}>
+            <Card className="mt-6 w-full">
+                <CardContent className="pt-6">
+                    <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="mt-6 max-w-lg space-y-4"
+                    className="space-y-4"
                 >
                     <FormField
                         control={form.control}
@@ -174,6 +177,8 @@ export function StatForm({ defaultValues }: Props) {
                     </Button>
                 </form>
             </Form>
+                </CardContent>
+            </Card>
         </div>
     );
 }

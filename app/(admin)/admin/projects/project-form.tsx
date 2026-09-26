@@ -11,6 +11,7 @@ import { projectSchema } from "@/lib/cms/schemas";
 import type { CreateProjectInput } from "@/lib/cms/types";
 import { PROJECT_CATEGORIES } from "@/lib/cms/icons";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
     Form,
@@ -78,10 +79,12 @@ export function ProjectForm({ defaultValues }: Props) {
                 {isEdit ? "Edit Project" : "New Project"}
             </h1>
 
-            <Form {...form}>
+            <Card className="mt-6 w-full">
+                <CardContent className="pt-6">
+                    <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="mt-6 space-y-4"
+                    className="space-y-4"
                 >
                     <FormField
                         control={form.control}
@@ -206,6 +209,8 @@ export function ProjectForm({ defaultValues }: Props) {
                     </Button>
                 </form>
             </Form>
+                </CardContent>
+            </Card>
         </div>
     );
 }
