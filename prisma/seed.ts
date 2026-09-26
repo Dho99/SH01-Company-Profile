@@ -495,16 +495,23 @@ async function main() {
         await prisma.blogPost.create({ data: post });
     }
 
-    /* ───── Admin user ───── */
-    const email = process.env.ADMIN_EMAIL ?? "admin@lexatech.id";
-    const password = process.env.ADMIN_PASSWORD ?? "admin123";
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    await prisma.user.upsert({
-        where: { email },
-        update: { passwordHash },
-        create: { email, passwordHash, role: "ADMIN", name: "Admin" },
-    });
+    /* ───── Admin user (bootstrap only when no users exist) ───── */
+    const userCount = await prisma.user.count();
+    if (userCount === 0) {
+        const email = process.env.ADMIN_EMAIL;
+        const password = process.env.ADMIN_PASSWORD;
+        if (email && password) {
+            const passwordHash = await bcrypt.hash(password, 12);
+            await prisma.user.create({
+                data: { email, passwordHash, role: "ADMIN", name: "Admin" },
+            });
+            console.log(`✅ Bootstrap admin created: ${email}`);
+        } else {
+            console.log("ℹ️ No users in DB and no ADMIN_EMAIL/ADMIN_PASSWORD — skipping admin bootstrap. Create users via /admin/users.");
+        }
+    } else {
+        console.log(`ℹ️ Users already exist (${userCount}) — skipping admin bootstrap.`);
+    }
 
     console.log("✅ Seed complete");
 }
