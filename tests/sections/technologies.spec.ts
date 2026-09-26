@@ -40,37 +40,17 @@ const MOCK_SECTION_HEADINGS = [
 test.describe("Technologies Section", () => {
   test.beforeEach(async ({ page }) => {
     // Mock API technologies dengan 12 item standar LEXA
-    await page.route(/\/api\/cms\/technologies/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_TECHNOLOGIES),
-      });
-    });
+    
 
     // Mock API section-headings untuk heading "Built On a Modern Stack"
-    await page.route(/\/api\/cms\/section-headings/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_SECTION_HEADINGS),
-      });
-    });
+    
 
     // Mock API lainnya dengan array/object kosong agar tidak blocking render
-    await page.route(/\/api\/cms\/site-setting/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "{}" });
-    });
-    await page.route(/\/api\/cms\/services/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/reasons/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/stat($|\/)/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/about-points/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
+    
+    
+    
+    
+    
 
     // Navigasi ke halaman utama
     await page.goto("/", { waitUntil: "domcontentloaded" });

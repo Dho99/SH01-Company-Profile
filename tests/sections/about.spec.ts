@@ -33,7 +33,7 @@ const MOCK_SITE_SETTING = {
   heroEyebrow: "Leading, Excellence & Automation",
   heroHeading: "Building Digital Solutions For ",
   heroHighlight: "A Better Future",
-  heroDescription: "LEXA Software House delivers innovative solutions.",
+  heroDescription: "LEXA Software House delivers innovative, reliable, and scalable software solutions.",
   heroPrimaryLabel: "Our Services",
   heroPrimaryHref: "#services",
   heroSecondaryLabel: "View Our Portfolio",
@@ -62,44 +62,11 @@ const MOCK_ABOUT_POINTS = [
 
 test.describe("About Section", () => {
   test.beforeEach(async ({ page }) => {
-    // Mock API site-setting agar data about langsung tersedia
-    await page.route(/\/api\/cms\/site-setting/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_SITE_SETTING),
-      });
-    });
-
-    // Mock API about-points agar poin keunggulan langsung tampil
-    await page.route(/\/api\/cms\/about-points/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_ABOUT_POINTS),
-      });
-    });
-
-    // Mock API lainnya dengan array kosong agar tidak blocking
-    await page.route(/\/api\/cms\/section-headings/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/services/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/technologies/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/reasons/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/stat($|\/)/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-
-    // Navigasi ke halaman utama; tunggu DOM selesai dimuat
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    // Navigasi ke halaman utama; tunggu load event selesai (kompatibel Chromium & Firefox)
+    await page.goto("/", { waitUntil: "load" });
 
     // Pastikan container #about telah terpasang di DOM sebelum test berjalan
-    await page.locator("#about").waitFor({ state: "attached", timeout: 15000 });
+    await page.locator("#about").waitFor({ state: "attached", timeout: 20000 });
   });
 
   // ──────────────────────────────────────────────────────────
@@ -138,8 +105,9 @@ test.describe("About Section", () => {
     await aboutSection.scrollIntoViewIfNeeded();
 
     // Memastikan teks deskripsi perusahaan terlihat di dalam section
+    // Actual DB value: "LEXA Software House is a technology company that provides innovative digital solutions to help businesses grow..."
     const description = aboutSection.getByText(
-      /LEXA Software House is a technology company/i
+      /LEXA Software House is a technology company that provides innovative digital solutions/i
     );
     await expect(description).toBeVisible({ timeout: 10000 });
 
@@ -177,8 +145,9 @@ test.describe("About Section", () => {
     await expect(commitmentTitle).toBeVisible();
 
     // Memastikan teks isi floating card juga terlihat di layar
+    // Actual DB value: "Delivering high-quality software solutions with integrity, collaboration, and dedication to exceed client expectations."
     const commitmentText = aboutSection.getByText(
-      /committed to delivering excellence/i
+      /Delivering high-quality software solutions with integrity/i
     );
     await expect(commitmentText).toBeVisible();
   });

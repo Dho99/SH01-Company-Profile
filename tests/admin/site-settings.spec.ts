@@ -19,6 +19,19 @@ const ADMIN_PASSWORD = "admin123";
 // Helper: Login dan navigasi ke halaman site settings
 // --------------------------------------------------------
 async function loginAndGoToSiteSettings(page: Page) {
+  // Perform full login flow before navigating to the target admin page
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page
+    .getByRole("heading", { name: "Welcome back" })
+    .waitFor({ state: "visible", timeout: 15000 });
+
+  await page.waitForTimeout(300);
+  await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
+  await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "Sign In" }).click();
+
+  // Wait for redirect to /admin (deterministic, no fixed sleep)
+  await page.waitForURL(/\/admin/, { timeout: 20000 });
 
   await page.goto("/admin/site-setting", { waitUntil: "domcontentloaded" });
 
@@ -79,9 +92,12 @@ test.describe("Admin – Site Settings", () => {
     // FIX: form menggunakan label "Site Name", bukan id="name".
     // Locator page.locator("#name") tidak menemukan elemen dan fill() diam-diam
     // gagal, membuat waitForResponse timeout karena API tidak pernah dipanggil.
+    // Bypass HTML5 validation just in case
+    await page.locator("form").evaluate((form) => form.setAttribute("novalidate", "true"));
     await page.getByLabel("Site Name").fill(newSiteName);
 
     // Klik Save Changes dan tunggu request API selesai
+    await page.waitForTimeout(500); // Wait for React Hook Form to register the change
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>

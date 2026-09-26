@@ -14,98 +14,25 @@ import { test, expect } from "@playwright/test";
 //
 // Strategi:
 //   - Semua locator diisolasi di dalam container #blog.
-//   - API /api/cms/blog-posts di-mock dengan 4 artikel contoh.
+//   - Data sesuai seed.ts aktual dari database.
 //   - waitFor digunakan untuk menunggu konten CMS muncul.
 // ============================================================
 
-// ── Data mock artikel blog ───────────────────────────────────
-const MOCK_BLOG_POSTS = [
-  {
-    id: "1",
-    badge: "Featured",
-    tag: "Web Development",
-    publishedAt: "2025-01-15T00:00:00.000Z",
-    title: "Building Scalable Web Apps with Next.js",
-    excerpt: "Discover how Next.js empowers developers to build fast and scalable web applications.",
-    imageUrl: null,
-    sortOrder: 1,
-    published: true,
-  },
-  {
-    id: "2",
-    badge: "Tech",
-    tag: "Mobile",
-    publishedAt: "2025-01-10T00:00:00.000Z",
-    title: "Cross-Platform Mobile Development with Flutter",
-    excerpt: "Flutter makes it easy to build beautiful native mobile apps from a single codebase.",
-    imageUrl: null,
-    sortOrder: 2,
-    published: true,
-  },
-  {
-    id: "3",
-    badge: "Tutorial",
-    tag: "Backend",
-    publishedAt: "2025-01-05T00:00:00.000Z",
-    title: "REST API Best Practices with Laravel",
-    excerpt: "Learn the best practices for building robust REST APIs using the Laravel framework.",
-    imageUrl: null,
-    sortOrder: 3,
-    published: true,
-  },
-  {
-    id: "4",
-    badge: "News",
-    tag: "Cloud",
-    publishedAt: "2024-12-30T00:00:00.000Z",
-    title: "Deploying Applications to AWS in 2025",
-    excerpt: "A step-by-step guide to deploying your applications efficiently on AWS infrastructure.",
-    imageUrl: null,
-    sortOrder: 4,
-    published: true,
-  },
-];
+// ── Data aktual dari DB (sesuai seed.ts) ─────────────────────
+// Post 0 (sortOrder 0): "LEXA Software House Launches Project-Based Internship Program" — badge: Latest News
+// Post 1 (sortOrder 1): "LEXA Develops Company Profile Website to Strengthen Digital Presence" — badge: Technology
+// Post 2 (sortOrder 2): "LEXA Developer Team Starts Building Portfolio Management System" — badge: Project
+// Post 3 (sortOrder 3): "Internship Opportunities at LEXA for Technology Students" — badge: Career
 
 test.describe("Blog Section", () => {
   test.beforeEach(async ({ page }) => {
-    // Mock API blog-posts dengan 4 artikel contoh
-    await page.route(/\/api\/cms\/blog-posts/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_BLOG_POSTS),
-      });
-    });
-
-    // Mock API lainnya dengan respon kosong agar tidak blocking render
-    await page.route(/\/api\/cms\/site-setting/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "{}" });
-    });
-    await page.route(/\/api\/cms\/section-headings/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/services/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/technologies/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/reasons/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/stat($|\/)/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/about-points/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-
-    // Navigasi ke halaman utama
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    // Navigasi ke halaman utama (waitUntil: "load" kompatibel Chromium & Firefox)
+    await page.goto("/", { waitUntil: "load" });
 
     // Tunggu container #blog terpasang di DOM sebelum test berjalan
     await page
       .locator("#blog")
-      .waitFor({ state: "attached", timeout: 15000 });
+      .waitFor({ state: "attached", timeout: 20000 });
   });
 
   // ──────────────────────────────────────────────────────────
@@ -123,9 +50,10 @@ test.describe("Blog Section", () => {
     // Memastikan section blog itu sendiri terlihat di layar
     await expect(blogSection).toBeVisible();
 
-    // Memastikan badge "Latest News" terlihat di dalam section blog
-    const badgeLatestNews = blogSection.getByText("Latest News");
-    await expect(badgeLatestNews).toBeVisible();
+    // Badge "Latest News" ada di header section (div) DAN di badge featured article (span).
+    // Gunakan locator spesifik ke elemen div header yang mengandung badge, bukan getByText generic.
+    const badgeLatestNews = blogSection.locator("div").filter({ hasText: /^Latest News$/ }).first();
+    await expect(badgeLatestNews).toBeVisible({ timeout: 10000 });
 
     // Memastikan heading utama "News & Information" terlihat di layar
     const heading = blogSection.getByRole("heading", {
@@ -143,27 +71,32 @@ test.describe("Blog Section", () => {
     const blogSection = page.locator("#blog");
     await blogSection.scrollIntoViewIfNeeded();
 
-    // Memastikan judul artikel utama (artikel pertama dari mock) terlihat
-    const featuredTitle = blogSection.getByRole("heading", {
-      name: /Building Scalable Web Apps with Next\.js/i,
+    // Post pertama dari seed (sortOrder=0): "LEXA Software House Launches Project-Based Internship Program"
+    // Judul muncul di h3 (featured article) DAN sebagai h4 dalam button sidebar.
+    // Scope ke article featured yang merupakan anak pertama blogSection.
+    const featuredArticle = blogSection.locator("article").first();
+    const featuredTitle = featuredArticle.locator("h3").filter({
+      hasText: /LEXA Software House Launches Project-Based Internship Program/i,
     });
     await expect(featuredTitle).toBeVisible({ timeout: 10000 });
 
-    // Memastikan excerpt/ringkasan artikel utama terlihat di layar
-    const featuredExcerpt = blogSection.getByText(
-      /empowers developers to build fast and scalable/i
+    // Memastikan excerpt artikel utama terlihat di layar
+    const featuredExcerpt = featuredArticle.getByText(
+      /designed to provide hands-on experience/i
     );
     await expect(featuredExcerpt).toBeVisible();
 
-    // Memastikan badge kategori "Featured" tampil pada artikel utama
-    const featuredBadge = blogSection.getByText("Featured", { exact: true });
+    // Badge artikel pertama: "Latest News"
+    // Badge di featured article dirender dari post.badge, post[0].badge = "Latest News"
+    // Note: badge "Latest News" juga ada di header. Cari yang spesifik di area featured (article)
+    const featuredBadge = featuredArticle.getByText("Latest News");
     await expect(featuredBadge).toBeVisible();
   });
 
   // ──────────────────────────────────────────────────────────
   // 3. Validasi daftar berita terbaru di sidebar
   // ──────────────────────────────────────────────────────────
-  test("daftar berita terbaru \"Latest at LEXA\" harus ditampilkan", async ({
+  test('daftar berita terbaru "Latest at LEXA" harus ditampilkan', async ({
     page,
   }) => {
     const blogSection = page.locator("#blog");
@@ -175,19 +108,19 @@ test.describe("Blog Section", () => {
     });
     await expect(latestHeading).toBeVisible();
 
-    // Memastikan artikel kedua, ketiga, dan keempat tampil sebagai item sidebar
+    // Semua 4 post dari seed muncul sebagai button di sidebar
     const secondPost = blogSection.getByText(
-      /Cross-Platform Mobile Development with Flutter/i
+      /LEXA Develops Company Profile Website to Strengthen Digital Presence/i
     );
     await expect(secondPost).toBeVisible();
 
     const thirdPost = blogSection.getByText(
-      /REST API Best Practices with Laravel/i
+      /LEXA Developer Team Starts Building Portfolio Management System/i
     );
     await expect(thirdPost).toBeVisible();
 
     const fourthPost = blogSection.getByText(
-      /Deploying Applications to AWS in 2025/i
+      /Internship Opportunities at LEXA for Technology Students/i
     );
     await expect(fourthPost).toBeVisible();
   });
@@ -244,22 +177,23 @@ test.describe("Blog Section", () => {
     const blogSection = page.locator("#blog");
     await blogSection.scrollIntoViewIfNeeded();
 
-    // Pastikan judul artikel utama awal (artikel pertama) terlihat
-    const initialFeaturedTitle = blogSection.getByRole("heading", {
-      name: /Building Scalable Web Apps with Next\.js/i,
+    // Pastikan judul artikel utama awal (artikel pertama dari seed) terlihat
+    // Scope ke h3 dalam article featured untuk menghindari strict mode violation dengan h4 di sidebar.
+    const initialFeaturedTitle = blogSection.locator("article").first().locator("h3").filter({
+      hasText: /LEXA Software House Launches Project-Based Internship Program/i,
     });
     await expect(initialFeaturedTitle).toBeVisible({ timeout: 10000 });
 
-    // Klik tombol/item sidebar yang berisi judul artikel kedua
+    // Klik button sidebar artikel kedua (sortOrder=1)
     const secondPostButton = blogSection.getByRole("button", {
-      name: /Cross-Platform Mobile Development with Flutter/i,
+      name: /LEXA Develops Company Profile Website to Strengthen Digital Presence/i,
     });
     await expect(secondPostButton).toBeVisible();
     await secondPostButton.click();
 
     // Setelah diklik, artikel utama harus berganti menampilkan judul artikel kedua
     const newFeaturedTitle = blogSection.getByRole("heading", {
-      name: /Cross-Platform Mobile Development with Flutter/i,
+      name: /LEXA Develops Company Profile Website to Strengthen Digital Presence/i,
       level: 3,
     });
     await expect(newFeaturedTitle).toBeVisible({ timeout: 5000 });

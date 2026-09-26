@@ -66,11 +66,22 @@ test.describe('Komponen Navbar', () => {
       { name: 'Contact', sectionId: '#contact' },
     ];
 
+    // Tunggu animasi Framer Motion header selesai (initial: y:-70 → 0, durasi 0.55s)
+    // agar bounding box link dihitung dengan benar sebelum diklik.
+    await page.waitForTimeout(800);
+
     for (const linkInfo of internalLinks) {
+      // Scroll ke atas sebelum setiap klik agar sticky nav selalu dalam viewport
+      // dan kalkulasi bounding box elemen tidak tergeser oleh scroll sebelumnya.
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+
       const link = desktopNav.getByRole('link', { name: linkInfo.name, exact: true });
 
-      // Klik link navigasi internal (menggunakan force: true untuk kestabilan di Firefox sticky header)
-      await link.click({ force: true });
+      // Tunggu link benar-benar visible (menghindari klik saat elemen masih animating)
+      await expect(link).toBeVisible({ timeout: 5000 });
+
+      // Klik link navigasi internal
+      await link.click();
 
       // Verifikasi section target ter-scroll ke dalam viewport
       const targetSection = page.locator(linkInfo.sectionId);

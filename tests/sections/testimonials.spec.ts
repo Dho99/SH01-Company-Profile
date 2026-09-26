@@ -15,87 +15,20 @@ import { test, expect } from "@playwright/test";
 //   - Tidak menggunakan id="#testimonials" karena komponen
 //     Testimonials tidak menyertakan atribut id pada <section>-nya.
 //     Gunakan data-testid implisit atau role/text untuk isolasi.
-//   - API di-mock dengan 3 testimoni contoh tanpa avatar URL
-//     agar elemen UserRound icon yang dirender dapat diverifikasi.
+//   - Data sesuai seed.ts aktual (4 testimoni dari DB).
 //   - Scroll ke section sebelum assertion agar elemen masuk viewport.
 // ============================================================
 
-// ── Data mock 3 testimoni klien LEXA ────────────────────────
-const MOCK_TESTIMONIALS = [
-  {
-    id: "1",
-    quote: "LEXA delivered an exceptional web platform that transformed our business operations completely.",
-    name: "Ahmad Fauzi",
-    role: "CEO, TechCorp Indonesia",
-    avatarUrl: null,
-    sortOrder: 1,
-    published: true,
-  },
-  {
-    id: "2",
-    quote: "The mobile application built by LEXA exceeded all our expectations in terms of quality and performance.",
-    name: "Siti Rahma",
-    role: "Product Manager, StartupHub",
-    avatarUrl: null,
-    sortOrder: 2,
-    published: true,
-  },
-  {
-    id: "3",
-    quote: "Professional team with deep technical expertise. Highly recommended for any software development project.",
-    name: "Budi Santoso",
-    role: "CTO, DigitalWave",
-    avatarUrl: null,
-    sortOrder: 3,
-    published: true,
-  },
-];
-
-// ── Data mock section heading untuk testimonials ─────────────
-const MOCK_SECTION_HEADINGS = [
-  { key: "testimonials", eyebrow: "What Clients Say", title: "Trusted By Great Companies" },
-];
+// ── Data aktual dari DB (sesuai seed.ts) ────────────────────
+// [0] Ardi Pratama    – CEO, Maju Bersama Indonesia  – "LEXA Software House delivered an outstanding website..."
+// [1] Dewi Lestari    – Marketing Director, TokoKita – "The mobile app developed by LEXA..."
+// [2] Budi Santoso    – CTO, CV. Sumber Abadi        – "Great experience working with LEXA..."
+// [3] Rangga Pratama  – Project Manager, Digital Nusantara – "LEXA provides reliable digital solutions..."
 
 test.describe("Testimonials Section", () => {
   test.beforeEach(async ({ page }) => {
-    // Mock API testimonials dengan 3 item contoh (tanpa avatar)
-    await page.route(/\/api\/cms\/testimonials/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_TESTIMONIALS),
-      });
-    });
-
-    // Mock API section-headings untuk heading "Trusted By Great Companies"
-    await page.route(/\/api\/cms\/section-headings/, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(MOCK_SECTION_HEADINGS),
-      });
-    });
-
-    // Mock API lainnya dengan respon kosong agar tidak blocking render
-    await page.route(/\/api\/cms\/site-setting/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "{}" });
-    });
-    await page.route(/\/api\/cms\/services/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/technologies/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/reasons/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/stat($|\/)/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-    await page.route(/\/api\/cms\/about-points/, async (route) => {
-      await route.fulfill({ contentType: "application/json", body: "[]" });
-    });
-
-    // Navigasi ke halaman utama
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    // Navigasi ke halaman utama (waitUntil: "load" kompatibel Chromium & Firefox)
+    await page.goto("/", { waitUntil: "load" });
 
     // Tunggu section testimonials (identifikasi via eyebrow text) terpasang di DOM
     await page
@@ -135,8 +68,8 @@ test.describe("Testimonials Section", () => {
     // Mencari semua elemen <figure> yang merupakan card testimoni
     const testimonialCards = page.locator("figure");
 
-    // Memastikan setidaknya 3 card testimoni dirender (sesuai mock data)
-    await expect(testimonialCards).toHaveCount(3);
+    // DB seed memiliki 4 testimoni — pastikan minimal 4 card dirender
+    await expect(testimonialCards).toHaveCount(4);
   });
 
   // ──────────────────────────────────────────────────────────
@@ -151,18 +84,18 @@ test.describe("Testimonials Section", () => {
     const firstCard = page.locator("figure").first();
     await firstCard.scrollIntoViewIfNeeded();
 
-    // Memastikan teks kutipan (blockquote) dari testimoni pertama terlihat
+    // Card [0]: Ardi Pratama – "LEXA Software House delivered an outstanding website..."
     const quote = firstCard.getByText(
-      /LEXA delivered an exceptional web platform/i
+      /LEXA Software House delivered an outstanding website/i
     );
     await expect(quote).toBeVisible({ timeout: 10000 });
 
     // Memastikan nama klien pada figcaption terlihat di layar
-    const clientName = firstCard.getByText("Ahmad Fauzi");
+    const clientName = firstCard.getByText("Ardi Pratama");
     await expect(clientName).toBeVisible();
 
     // Memastikan jabatan klien pada figcaption terlihat di layar
-    const clientRole = firstCard.getByText("CEO, TechCorp Indonesia");
+    const clientRole = firstCard.getByText("CEO, Maju Bersama Indonesia");
     await expect(clientRole).toBeVisible();
   });
 
@@ -177,32 +110,30 @@ test.describe("Testimonials Section", () => {
     const cards = page.locator("figure");
 
     // ── Card kedua ──────────────────────────────────────────
+    // Card [1]: Dewi Lestari – "The mobile app developed by LEXA..."
     const secondCard = cards.nth(1);
     await secondCard.scrollIntoViewIfNeeded();
 
-    // Memastikan kutipan testimoni kedua terlihat di card-nya
     const secondQuote = secondCard.getByText(
-      /mobile application built by LEXA exceeded/i
+      /The mobile app developed by LEXA has significantly improved/i
     );
     await expect(secondQuote).toBeVisible({ timeout: 10000 });
 
-    // Memastikan nama dan jabatan klien kedua terlihat
-    await expect(secondCard.getByText("Siti Rahma")).toBeVisible();
-    await expect(secondCard.getByText("Product Manager, StartupHub")).toBeVisible();
+    await expect(secondCard.getByText("Dewi Lestari")).toBeVisible();
+    await expect(secondCard.getByText("Marketing Director, TokoKita")).toBeVisible();
 
     // ── Card ketiga ──────────────────────────────────────────
+    // Card [2]: Budi Santoso – "Great experience working with LEXA..."
     const thirdCard = cards.nth(2);
     await thirdCard.scrollIntoViewIfNeeded();
 
-    // Memastikan kutipan testimoni ketiga terlihat di card-nya
     const thirdQuote = thirdCard.getByText(
-      /Professional team with deep technical expertise/i
+      /Great experience working with LEXA/i
     );
     await expect(thirdQuote).toBeVisible({ timeout: 10000 });
 
-    // Memastikan nama dan jabatan klien ketiga terlihat
     await expect(thirdCard.getByText("Budi Santoso")).toBeVisible();
-    await expect(thirdCard.getByText("CTO, DigitalWave")).toBeVisible();
+    await expect(thirdCard.getByText("CTO, CV. Sumber Abadi")).toBeVisible();
   });
 
   // ──────────────────────────────────────────────────────────

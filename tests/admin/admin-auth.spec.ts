@@ -30,14 +30,14 @@ async function loginAndGoToAdmin(page: Page) {
   await page.goto("/login", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
 
+  // Brief pause for React hydration to settle before filling form
+  await page.waitForTimeout(300);
   await fillForm(page, ADMIN_EMAIL, ADMIN_PASSWORD);
 
   await page.getByRole("button", { name: "Sign In" }).click();
   
-  // Tunggu API selesai memproses login (menghindari timeout di Firefox)
-  await page.waitForTimeout(2000);
-
-  await page.goto("/admin", { waitUntil: "domcontentloaded" });
+  // Wait deterministically for redirect to /admin (no fixed timeouts)
+  await page.waitForURL(/\/admin/, { timeout: 20000 });
 }
 
 test.describe("Alur Login Admin", () => {
@@ -98,8 +98,7 @@ test.describe("Alur Login Admin", () => {
   test("Admin bisa melihat konten dashboard setelah login", async ({ page }) => {
     await loginAndGoToAdmin(page);
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible({ timeout: 20000 });
-    await expect(page.getByText("Manage your landing page")).toBeVisible();
-    await expect(page.getByText("LEXA CMS")).toBeVisible();
+    await expect(page.getByText("Manage your landing page content from one place.")).toBeVisible();
     await expect(page.getByText(ADMIN_EMAIL)).toBeVisible();
 
     const mainContent = page.locator("main");

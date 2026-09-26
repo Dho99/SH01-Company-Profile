@@ -19,6 +19,19 @@ const ADMIN_PASSWORD = "admin123";
 // Helper: Login dan navigasi ke halaman section headings
 // --------------------------------------------------------
 async function loginAndGoToSectionHeadings(page: Page) {
+  // Perform full login flow before navigating to the target admin page
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page
+    .getByRole("heading", { name: "Welcome back" })
+    .waitFor({ state: "visible", timeout: 15000 });
+
+  await page.waitForTimeout(300);
+  await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
+  await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "Sign In" }).click();
+
+  // Wait for redirect to /admin (deterministic, no fixed sleep)
+  await page.waitForURL(/\/admin/, { timeout: 20000 });
 
   await page.goto("/admin/section-headings", { waitUntil: "domcontentloaded" });
 
