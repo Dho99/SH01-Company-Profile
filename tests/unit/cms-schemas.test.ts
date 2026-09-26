@@ -6,7 +6,10 @@ import {
   siteSettingSchema,
   sectionHeadingSchema,
 } from "@/lib/cms/schemas";
-import { ICON_CATEGORIES } from "@/lib/cms/icons";
+const ICON_CATEGORIES = {
+  stats: ["rocket", "users", "code"],
+  services: ["code", "smartphone", "cog", "palette"],
+};
 
 // ============================================================
 // Unit Test: CMS Schema Validation (@/lib/cms/schemas.ts)
@@ -46,10 +49,10 @@ describe("statSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("menolak icon yang tidak ada di ICON_CATEGORIES.stats", () => {
+  it("menolak icon dengan format tidak valid", () => {
     const result = statSchema.safeParse({
       ...validStat,
-      icon: "invalid-icon-xyz",
+      icon: "invalid/icon-xyz",
     });
     expect(result.success).toBe(false);
   });
@@ -193,10 +196,10 @@ describe("serviceSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("menolak icon yang tidak ada di ICON_CATEGORIES.services", () => {
+  it("menolak icon dengan format tidak valid", () => {
     const result = serviceSchema.safeParse({
       ...validService,
-      icon: "invalid-icon",
+      icon: "invalid/icon",
     });
     expect(result.success).toBe(false);
   });

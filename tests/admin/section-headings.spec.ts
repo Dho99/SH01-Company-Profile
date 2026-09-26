@@ -8,24 +8,21 @@ const ADMIN_PASSWORD = "admin123";
 // ============================================================
 
 async function loginAndGoToSectionHeadings(page: Page) {
-    await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Welcome back" })
+  ).toBeVisible();
 
-    await expect(
-        page.getByRole("heading", { name: "Welcome back" })
-    ).toBeVisible();
+  await page.waitForTimeout(500);
+  await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
+  await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "Sign In" }).click();
 
-    await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
-    await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
+  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
+  // lebih lanjut. Menggantikan waitForTimeout(2000) yang rentan race-condition.
+  await page.waitForURL(/\/admin/, { timeout: 15000 });
 
-    await page.getByRole("button", { name: "Sign In" }).click();
-
-    await page.waitForTimeout(3000);
-
-console.log("URL setelah login:", page.url());
-
-    await page.goto("/admin/section-headings", {
-      waitUntil: "domcontentloaded",
-});
+  await page.goto("/admin/section-headings", { waitUntil: "domcontentloaded" });
 
     await expect(
       page.getByRole("heading", { name: "Section Headings" })
@@ -39,9 +36,9 @@ console.log("URL setelah login:", page.url());
 // ============================================================
 
 test.describe("Admin – Section Headings", () => {
-    test.beforeEach(async ({ page }) => {
-        await page.context().clearCookies();
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.context().clearCookies();
+  });
 
     // ----------------------------------------------------------
     // 1. Page rendering / DOM
