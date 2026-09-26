@@ -203,15 +203,16 @@ test.describe("Admin – About Points CRUD", () => {
       page.getByRole("heading", { name: "About Points" })
     ).toBeVisible({ timeout: 10000 });
 
-    // Pastikan item sementara ada
+    // Pastikan item sementara ada (gunakan first jika ada sisa data tes sebelumnya)
     await expect(
-      page.getByText("Temp About Point to Delete")
+      page.locator("tbody").getByText("Temp About Point to Delete").first()
     ).toBeVisible({ timeout: 10000 });
 
     // Klik tombol delete pada baris tersebut
     const row = page
       .locator("tr")
-      .filter({ hasText: "Temp About Point to Delete" });
+      .filter({ hasText: "Temp About Point to Delete" })
+      .first();
     const deleteBtn = row.locator("button").last();
 
     const [deleteResponse] = await Promise.all([

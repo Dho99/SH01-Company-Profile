@@ -47,25 +47,23 @@ test.describe('Portfolio Section', () => {
     // Scroll ke portfolio section agar masuk viewport
     await portfolioSection.scrollIntoViewIfNeeded();
 
-    // Mencari tombol navigasi "Previous projects" menggunakan aria-label semantik
-    const prevButton = portfolioSection.getByRole('button', { name: 'Previous projects' });
+    // Carousel component merender aria-label="Previous" dan "Next" (tanpa suffix "projects")
+    const prevButton = portfolioSection.getByRole('button', { name: 'Previous' });
+    const nextButton = portfolioSection.getByRole('button', { name: 'Next' });
 
-    // Mencari tombol navigasi "Next projects" menggunakan aria-label semantik
-    const nextButton = portfolioSection.getByRole('button', { name: 'Next projects' });
-
-    // Memastikan tombol "Previous projects" terlihat di layar
+    // Memastikan tombol "Previous" terlihat di layar
     await expect(prevButton).toBeVisible({ timeout: 10000 });
 
-    // Memastikan tombol "Next projects" terlihat di layar
+    // Memastikan tombol "Next" terlihat di layar
     await expect(nextButton).toBeVisible();
 
-    // Mensimulasikan klik pada tombol "Next projects" untuk scroll carousel ke kanan
+    // Mensimulasikan klik pada tombol "Next" untuk scroll carousel ke kanan
     await nextButton.click();
 
     // Memastikan tombol masih terlihat setelah diklik (layout tidak rusak)
     await expect(nextButton).toBeVisible();
 
-    // Mensimulasikan klik pada tombol "Previous projects" untuk scroll carousel ke kiri
+    // Mensimulasikan klik pada tombol "Previous" untuk scroll carousel ke kiri
     await prevButton.click();
 
     // Memastikan tombol masih terlihat setelah diklik (layout tidak rusak)
@@ -105,7 +103,7 @@ test.describe('Portfolio Section', () => {
     ).toBeVisible();
 
     // Mensimulasikan klik pada link "View Case Study" di dalam kartu tersebut
-    // CATATAN: "View Case Study" mengarah ke "#contact", verifikasi dengan toBeInViewport
+    // CATATAN: "View Case Study" mengarah ke "/#contact", verifikasi dengan toBeInViewport
     await targetCard.getByRole('link', { name: /View Case Study/i }).click();
 
     // Verifikasi section #contact ter-scroll ke viewport

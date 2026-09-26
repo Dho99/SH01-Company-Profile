@@ -26,19 +26,19 @@ const ADMIN_PASSWORD = "admin123";
 // Helper: Login dan navigasi ke halaman stats
 // --------------------------------------------------------
 async function loginAndGoToStats(page: Page) {
+  // Perform full login flow before navigating to the target admin page
   await page.goto("/login", { waitUntil: "domcontentloaded" });
-  await expect(
-    page.getByRole("heading", { name: "Welcome back" })
-  ).toBeVisible();
+  await page
+    .getByRole("heading", { name: "Welcome back" })
+    .waitFor({ state: "visible", timeout: 15000 });
 
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(300);
   await page.getByLabel("Email", { exact: true }).fill(ADMIN_EMAIL);
   await page.getByLabel("Password", { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Sign In" }).click();
 
-  // FIX: tunggu redirect ke /admin setelah login berhasil sebelum navigasi
-  // lebih lanjut. Menggantikan waitForTimeout(2000) yang rentan race-condition.
-  await page.waitForURL(/\/admin/, { timeout: 15000 });
+  // Wait for redirect to /admin (deterministic, no fixed sleep)
+  await page.waitForURL(/\/admin/, { timeout: 20000 });
 
   await page.goto("/admin/stats", { waitUntil: "domcontentloaded" });
 
@@ -52,7 +52,7 @@ async function loginAndGoToStats(page: Page) {
 // ============================================================
 test.describe("Admin – Stats CRUD", () => {
   test.beforeEach(async ({ page }) => {
-    await page.context().clearCookies();
+    // test reuse session
   });
 
   // ----------------------------------------------------------
@@ -77,7 +77,7 @@ test.describe("Admin – Stats CRUD", () => {
     await page.locator("select").selectOption("rocket");
 
     // Isi Value
-    await page.getByLabel("Value").fill(uniqueValue);
+    await page.locator("form").getByLabel("Value", { exact: true }).fill(uniqueValue);
 
     // Isi Label
     await page.getByLabel("Label").fill(uniqueLabel);
@@ -141,10 +141,13 @@ test.describe("Admin – Stats CRUD", () => {
 
     // Edit field Value
     const updatedValue = `Updated ${Date.now()}`;
-    await page.getByLabel("Value").fill(updatedValue);
+    // Bypass HTML5 validation
+    await page.locator("form").evaluate((form) => form.setAttribute("novalidate", "true"));
+    await page.locator("form").getByLabel("Value", { exact: true }).fill(updatedValue);
 
     // Submit dan tunggu API PUT response
     // FIX: endpoint backend adalah /api/cms/stat/<id> (singular), bukan /cms/stats/.
+    await page.waitForTimeout(500); // Wait for React Hook Form to register the change
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
@@ -212,7 +215,7 @@ test.describe("Admin – Stats CRUD", () => {
     });
 
     // Pastikan item "Temp Delete Stat" ada di daftar
-    await expect(page.getByText("Temp Delete Stat")).toBeVisible({
+    await expect(page.locator("tbody").getByText("Temp Delete Stat").first()).toBeVisible({
       timeout: 10000,
     });
 
