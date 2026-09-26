@@ -121,6 +121,20 @@ export const blogPostSchema = z.object({
   published: z.boolean(),
 });
 
+export const userCreateSchema = z.object({
+    name: z.string().min(1).max(100).optional().or(z.literal("")),
+    email: z.string().email("Valid email is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    role: z.enum(["ADMIN", "EDITOR"]),
+});
+
+export const userUpdateSchema = z.object({
+    name: z.string().min(1).max(100).optional().or(z.literal("")),
+    email: z.string().email("Valid email is required"),
+    password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
+    role: z.enum(["ADMIN", "EDITOR"]),
+});
+
 export const loginSchema = z.object({
   email: z.string().email("Valid email is required"),
   password: z.string().min(1, "Password is required"),

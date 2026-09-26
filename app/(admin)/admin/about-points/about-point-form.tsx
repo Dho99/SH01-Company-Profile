@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { aboutPointSchema } from "@/lib/cms/schemas";
 import type { CreateAboutPointInput } from "@/lib/cms/types";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -68,10 +69,10 @@ export function AboutPointForm({ defaultValues }: Props) {
         {isEdit ? "Edit About Point" : "New About Point"}
       </h1>
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="mt-6 max-w-lg space-y-4"
+            <Card className="mt-6 w-full">
+                <CardContent className="pt-6">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"
         >
           <FormField
             control={form.control}
@@ -132,8 +133,10 @@ export function AboutPointForm({ defaultValues }: Props) {
           <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Saving..." : "Save"}
           </Button>
-        </form>
-      </Form>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
     </div>
   );
 }
