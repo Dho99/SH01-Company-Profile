@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/section-heading";
 import { Carousel } from "@/components/carousel";
 import { Reveal } from "@/components/reveal";
+import { PortfolioSkeleton } from "@/components/skeletons/portfolio-skeleton";
+import { slugify } from "@/lib/slug";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -32,6 +34,7 @@ const fallbackImages: Record<string, string> = {
 
 type Project = {
     id: string;
+    slug: string;
     category: string;
     title: string;
     description: string;
@@ -49,15 +52,7 @@ export function Portfolio({
 }) {
     const projects = items;
 
-    if (projects.length === 0) {
-        return (
-            <section id="portfolio" className="bg-white py-20 lg:py-28">
-                <div className="mx-auto max-w-7xl px-4">
-                    <div className="h-64 animate-pulse rounded-xl bg-slate-100" />
-                </div>
-            </section>
-        );
-    }
+    if (projects.length === 0) return <PortfolioSkeleton />;
 
     return (
         <section id="portfolio" className="bg-white py-12 lg:py-14">
@@ -75,7 +70,7 @@ export function Portfolio({
                     />
 
                     <Link
-                        href="/#portfolio"
+                        href="/projects"
                         className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-all hover:gap-2.5 lg:absolute lg:right-0 lg:top-2 lg:mt-0"
                     >
                         View All Projects <ArrowRight className="size-4" />
@@ -129,7 +124,7 @@ export function Portfolio({
                                         dangerouslySetInnerHTML={{ __html: p.description }}
                                     />
                                     <Link
-                                        href="/#contact"
+                                        href={`/projects/${p.slug || slugify(p.title)}`}
                                         className="inline-flex items-center gap-1.5 pt-1 text-sm font-medium text-brand transition-all group-hover:gap-2.5"
                                     >
                                         View Case Study{" "}

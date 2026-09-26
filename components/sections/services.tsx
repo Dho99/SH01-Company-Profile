@@ -12,6 +12,8 @@ import {
 import { SectionHeading } from "@/components/section-heading";
 import { CmsIcon } from "@/components/cms-icon";
 import { Reveal } from "@/components/reveal";
+import { ServicesSkeleton } from "@/components/skeletons/services-skeleton";
+import { slugify } from "@/lib/slug";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -26,6 +28,7 @@ const tints = [
 
 type Service = {
     id: string;
+    slug: string;
     icon: string;
     title: string;
     description: string;
@@ -42,23 +45,10 @@ export function Services({
     heading?: Heading;
 }) {
     const services = items;
+    const display = services.slice(0, 6);
+    const hasMore = services.length > 6;
 
-    if (services.length === 0) {
-        return (
-            <section id="services" className="bg-slate-50 py-20 lg:py-28">
-                <div className="mx-auto max-w-7xl px-4">
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {[1, 2, 3].map((i) => (
-                            <div
-                                key={i}
-                                className="h-48 animate-pulse rounded-xl bg-white"
-                            />
-                        ))}
-                    </div>
-                </div>
-            </section>
-        );
-    }
+    if (services.length === 0) return <ServicesSkeleton />;
 
     return (
         <section id="services" className="bg-slate-50 py-12 lg:py-14">
@@ -76,7 +66,7 @@ export function Services({
                 </Reveal>
 
                 <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {services.map((s, index) => {
+                    {display.map((s, index) => {
                         const tint = tints[index % tints.length];
                         return (
                             <Reveal
@@ -140,7 +130,7 @@ export function Services({
 
                                     <CardContent>
                                         <Link
-                                            href="/#contact"
+                                            href={`/services/${s.slug || slugify(s.title)}`}
                                             className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-all group-hover:gap-2.5"
                                         >
                                             Learn More{" "}
@@ -152,6 +142,16 @@ export function Services({
                         );
                     })}
                 </div>
+                {hasMore && (
+                    <div className="mt-8 flex justify-center">
+                        <Link
+                            href="/services"
+                            className="inline-flex items-center gap-1.5 rounded-lg border bg-white px-5 py-2.5 text-sm font-semibold text-brand shadow-sm hover:bg-blue-50"
+                        >
+                            View All Services <ArrowRight className="size-4" />
+                        </Link>
+                    </div>
+                )}
             </div>
         </section>
     );

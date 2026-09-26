@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
 import { CmsIcon } from "@/components/cms-icon";
 import { Reveal } from "@/components/reveal";
+import { TechnologiesSkeleton } from "@/components/skeletons/technologies-skeleton";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -56,15 +57,7 @@ export function Technologies({
 }) {
     const technologies = items;
 
-    if (technologies.length === 0) {
-        return (
-            <section id="technologies" className="bg-slate-50 py-20 lg:py-28">
-                <div className="mx-auto max-w-7xl px-4">
-                    <div className="h-48 animate-pulse rounded-2xl bg-white" />
-                </div>
-            </section>
-        );
-    }
+    if (technologies.length === 0) return <TechnologiesSkeleton />;
 
     return (
         <section id="technologies" className="bg-slate-50 py-12 lg:py-14">
@@ -160,7 +153,7 @@ export function Technologies({
                             variant="outline"
                             className="rounded-lg"
                         >
-                            <Link href="/#contact">
+                            <Link href="/technologies">
                                 View All Technologies{" "}
                                 <ArrowRight className="size-4" />
                             </Link>

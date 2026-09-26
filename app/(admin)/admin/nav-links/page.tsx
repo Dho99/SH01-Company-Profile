@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import api from "@/lib/api/api";
 import { apiDelete } from "@/lib/api/cms";
 import { DeleteConfirmDialog } from "@/components/admin/delete-confirm-dialog";
+import { AdminTableSkeleton } from "@/components/admin/admin-skeletons";
 import { toast } from "sonner";
 
 type NavLink = { id: string; label: string; href: string; group: string; hasDropdown: boolean; sortOrder: number };
@@ -34,7 +35,7 @@ export default function NavLinksListPage() {
         }
     }
 
-    if (loading) return <div className="p-6 text-sm text-slate-400">Loading...</div>;
+    if (loading) return <AdminTableSkeleton />;
 
     return (
         <div>

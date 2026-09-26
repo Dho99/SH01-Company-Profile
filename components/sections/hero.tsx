@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
+import { HeroSkeleton } from "@/components/skeletons/hero-skeleton";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -20,23 +21,7 @@ type HeroData = {
 };
 
 export function Hero({ data }: { data: HeroData | null }) {
-    if (!data) {
-        return (
-            <section className="relative isolate overflow-hidden bg-[#06142f]">
-                <div className="relative mx-auto flex min-h-[560px] max-w-[1180px] items-center px-4 py-20 sm:px-6 lg:px-8">
-                    <div className="max-w-[560px] space-y-5">
-                        <div className="h-3 w-40 animate-pulse rounded-full bg-white/10" />
-                        <div className="h-16 w-full animate-pulse rounded-xl bg-white/10" />
-                        <div className="h-6 w-3/4 animate-pulse rounded-full bg-white/10" />
-                        <div className="flex gap-4">
-                            <div className="h-12 w-36 animate-pulse rounded-lg bg-white/10" />
-                            <div className="h-12 w-44 animate-pulse rounded-lg bg-white/10" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-    }
+    if (!data) return <HeroSkeleton />;
 
     return (
         <section className="relative isolate overflow-hidden bg-[#06142f] text-white">

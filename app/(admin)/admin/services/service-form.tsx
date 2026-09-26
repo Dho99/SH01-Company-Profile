@@ -36,6 +36,7 @@ export function ServiceForm({ defaultValues }: Props) {
     const form = useForm<CreateServiceInput>({
         resolver: zodResolver(serviceSchema),
         defaultValues: (defaultValues ?? {
+            slug: "",
             icon: "",
             title: "",
             description: "",
@@ -104,6 +105,20 @@ export function ServiceForm({ defaultValues }: Props) {
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
                                     <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="slug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Slug</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="web-development" {...field} value={field.value ?? ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

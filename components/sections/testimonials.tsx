@@ -1,9 +1,12 @@
 import Image from "next/image";
-import { Quote, UserRound } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Quote, UserRound } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
 import { Carousel } from "@/components/carousel";
 import { Reveal } from "@/components/reveal";
+import { TestimonialsSkeleton } from "@/components/skeletons/testimonials-skeleton";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -32,15 +35,7 @@ export function Testimonials({
 }) {
     const testimonials = items;
 
-    if (testimonials.length === 0) {
-        return (
-            <section className="bg-slate-50 py-20 lg:py-28">
-                <div className="mx-auto max-w-7xl px-4">
-                    <div className="h-48 animate-pulse rounded-xl bg-white" />
-                </div>
-            </section>
-        );
-    }
+    if (testimonials.length === 0) return <TestimonialsSkeleton />;
 
     return (
         <section className="bg-slate-50 py-12 lg:py-14">
@@ -134,6 +129,13 @@ export function Testimonials({
                         </Reveal>
                     ))}
                 </Carousel>
+                <div className="mt-8 flex justify-center">
+                    <Button asChild variant="outline" className="rounded-lg">
+                        <Link href="/testimonials">
+                            View All Testimonials <ArrowRight className="size-4" />
+                        </Link>
+                    </Button>
+                </div>
             </div>
         </section>
     );

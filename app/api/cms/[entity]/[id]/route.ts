@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { statSchema, aboutPointSchema, serviceSchema, projectSchema, technologySchema, reasonSchema, testimonialSchema, navLinkSchema } from "@/lib/cms/schemas";
 import { normalizeIconName } from "@/lib/icon";
+import { slugify } from "@/lib/slug";
 import type { ZodSchema } from "zod";
 import { revalidateCms } from "@/lib/cms/revalidate";
 
@@ -49,8 +50,22 @@ export async function PUT(request: Request, { params }: { params: Promise<{ enti
     }
 
     const raw = await request.json() as Record<string, unknown>;
-    for (const field of ["imageUrl", "avatarUrl", "icon"]) {
-      if (raw[field] === "") raw[field] = null;
+    for (const field of ["imageUrl", "avatarUrl", "icon", "slug"]) {
+      if (raw[field] === "") raw[field] = undefined;
+    }
+    if (raw["slug"] == null && raw["title"] && ["services", "projects", "blog-posts"].includes(entity)) {
+      const base = String(raw["title"]);
+      let candidate = slugify(base);
+      let i = 2;
+      const model = prismaModels[entity] as unknown as {
+        findUnique: (a: { where: { slug: string } }) => Promise<{ id: string } | null>;
+      };
+      while (true) {
+        const existing = await model.findUnique({ where: { slug: candidate } });
+        if (!existing || existing.id === id) break;
+        candidate = `${slugify(base)}-${i++}`;
+      }
+      raw["slug"] = candidate;
     }
     if (raw["icon"] != null && ICON_ENTITIES.has(entity)) {
       raw["icon"] = normalizeIconName(raw["icon"] as string);
