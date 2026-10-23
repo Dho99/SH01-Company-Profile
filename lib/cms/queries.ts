@@ -41,11 +41,25 @@ export async function getServices() {
   return prisma.service.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" } });
 }
 
+export async function getServiceBySlug(slug: string) {
+  "use cache";
+  cacheTag("cms:services");
+  cacheLife("hours");
+  return prisma.service.findUnique({ where: { slug } });
+}
+
 export async function getProjects() {
   "use cache";
   cacheTag("cms:projects");
   cacheLife("hours");
   return prisma.project.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" } });
+}
+
+export async function getProjectBySlug(slug: string) {
+  "use cache";
+  cacheTag("cms:projects");
+  cacheLife("hours");
+  return prisma.project.findUnique({ where: { slug } });
 }
 
 export async function getTechnologies() {
@@ -81,6 +95,13 @@ export async function getBlogPosts() {
   cacheTag("cms:blog-posts");
   cacheLife("hours");
   return prisma.blogPost.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" } });
+}
+
+export async function getBlogPostBySlug(slug: string) {
+  "use cache";
+  cacheTag("cms:blog-posts");
+  cacheLife("hours");
+  return prisma.blogPost.findUnique({ where: { slug } });
 }
 
 /* ───────── Admin (uncached) readers ───────── */

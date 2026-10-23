@@ -43,12 +43,13 @@ export function BlogPostForm({ defaultValues }: Props) {
 
     const form = useForm<CreateBlogPostInput>({
         resolver: zodResolver(blogPostSchema),
-        defaultValues: defaultValues
+            defaultValues: defaultValues
             ? {
                   ...defaultValues,
                   publishedAt: toDateInputValue(defaultValues.publishedAt),
               }
             : {
+                  slug: "",
                   badge: "",
                   tag: "",
                   publishedAt: "",
@@ -145,6 +146,20 @@ export function BlogPostForm({ defaultValues }: Props) {
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
                                     <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="slug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Slug</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="my-post-slug" {...field} value={field.value ?? ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

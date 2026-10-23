@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/admin/delete-confirm-dialog";
+import { AdminTableSkeleton } from "@/components/admin/admin-skeletons";
 import api from "@/lib/api/api";
 import { apiDelete } from "@/lib/api/cms";
 import { toast } from "sonner";
@@ -33,7 +34,7 @@ export default function ServicesListPage() {
         }
     }
 
-    if (loading) return <div className="p-6 text-sm text-slate-400">Loading...</div>;
+    if (loading) return <AdminTableSkeleton />;
 
     return (
         <div>

@@ -3,6 +3,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 import bcrypt from "bcryptjs";
 
+function slugify(input: string): string {
+    return input
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80) || "item";
+}
+
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
@@ -168,7 +179,7 @@ async function main() {
         },
     ];
     for (const svc of services) {
-        await prisma.service.create({ data: svc });
+        await prisma.service.create({ data: { ...svc, slug: slugify(svc.title) } });
     }
 
     /* ───── Projects ───── */
@@ -199,7 +210,7 @@ async function main() {
         },
     ];
     for (const proj of projects) {
-        await prisma.project.create({ data: proj });
+        await prisma.project.create({ data: { ...proj, slug: slugify(proj.title) } });
     }
 
     /* ───── Technologies ───── */
@@ -492,7 +503,7 @@ async function main() {
         },
     ];
     for (const post of blogPosts) {
-        await prisma.blogPost.create({ data: post });
+        await prisma.blogPost.create({ data: { ...post, slug: slugify(post.title) } });
     }
 
     /* ───── Admin user (bootstrap only when no users exist) ───── */

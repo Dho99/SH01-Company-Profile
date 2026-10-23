@@ -67,6 +67,7 @@ export const aboutPointSchema = z.object({
 });
 
 export const serviceSchema = z.object({
+  slug: z.string().min(1).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug").optional(),
   icon: iconSchema,
   title: z.string().min(1),
   description: z.string().min(1),
@@ -76,6 +77,7 @@ export const serviceSchema = z.object({
 });
 
 export const projectSchema = z.object({
+  slug: z.string().min(1).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug").optional(),
   category: projectCategorySchema,
   title: z.string().min(1),
   description: z.string().min(1),
@@ -110,6 +112,7 @@ export const testimonialSchema = z.object({
 });
 
 export const blogPostSchema = z.object({
+  slug: z.string().min(1).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug").optional(),
   badge: z.string().min(1),
   tag: z.string().min(1),
   publishedAt: z.string().min(1),

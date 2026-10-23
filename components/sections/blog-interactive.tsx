@@ -7,9 +7,11 @@ import { ArrowRight } from "lucide-react";
 
 import { Reveal } from "@/components/reveal";
 import { cn } from "@/lib/utils";
+import { slugify } from "@/lib/slug";
 
 type BlogPost = {
     id: string;
+    slug: string;
     badge: string;
     tag: string;
     publishedAt: Date | string;
@@ -83,7 +85,7 @@ export function BlogInteractive({ posts }: { posts: BlogPost[] }) {
                     </p>
 
                     <Link
-                        href="/#blog"
+                        href={`/blog/${featured.slug || slugify(featured.title)}`}
                         className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-white transition-all hover:gap-3"
                     >
                         Read More <ArrowRight className="size-4" />
