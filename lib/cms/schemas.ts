@@ -67,6 +67,7 @@ export const aboutPointSchema = z.object({
 });
 
 export const serviceSchema = z.object({
+  slug: z.string().min(1).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug").optional(),
   icon: iconSchema,
   title: z.string().min(1),
   description: z.string().min(1),
@@ -76,6 +77,7 @@ export const serviceSchema = z.object({
 });
 
 export const projectSchema = z.object({
+  slug: z.string().min(1).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug").optional(),
   category: projectCategorySchema,
   title: z.string().min(1),
   description: z.string().min(1),
@@ -110,6 +112,7 @@ export const testimonialSchema = z.object({
 });
 
 export const blogPostSchema = z.object({
+  slug: z.string().min(1).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug").optional(),
   badge: z.string().min(1),
   tag: z.string().min(1),
   publishedAt: z.string().min(1),
@@ -119,6 +122,20 @@ export const blogPostSchema = z.object({
   imageUrl: optionalImageUrl,
   sortOrder: z.number().int(),
   published: z.boolean(),
+});
+
+export const userCreateSchema = z.object({
+    name: z.string().min(1).max(100).optional().or(z.literal("")),
+    email: z.string().email("Valid email is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    role: z.enum(["ADMIN", "EDITOR"]),
+});
+
+export const userUpdateSchema = z.object({
+    name: z.string().min(1).max(100).optional().or(z.literal("")),
+    email: z.string().email("Valid email is required"),
+    password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
+    role: z.enum(["ADMIN", "EDITOR"]),
 });
 
 export const loginSchema = z.object({

@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
 import { Reveal } from "@/components/reveal";
+import { AboutSkeleton } from "@/components/skeletons/about-skeleton";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -30,15 +31,7 @@ export function About({
     site: SiteSetting | null;
     points: AboutPoint[];
 }) {
-    if (!site) {
-        return (
-            <section className="bg-white py-20 lg:py-28">
-                <div className="mx-auto max-w-7xl px-4">
-                    <div className="h-96 animate-pulse rounded-2xl bg-slate-100" />
-                </div>
-            </section>
-        );
-    }
+    if (!site) return <AboutSkeleton />;
 
     return (
         <section id="about" className="bg-white py-16 lg:py-20">

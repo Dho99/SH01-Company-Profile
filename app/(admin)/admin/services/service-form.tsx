@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { serviceSchema } from "@/lib/cms/schemas";
 import type { CreateServiceInput } from "@/lib/cms/types";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
     Form,
@@ -35,6 +36,7 @@ export function ServiceForm({ defaultValues }: Props) {
     const form = useForm<CreateServiceInput>({
         resolver: zodResolver(serviceSchema),
         defaultValues: (defaultValues ?? {
+            slug: "",
             icon: "",
             title: "",
             description: "",
@@ -73,10 +75,10 @@ export function ServiceForm({ defaultValues }: Props) {
                 {isEdit ? "Edit Service" : "New Service"}
             </h1>
 
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="mt-6 space-y-4"
+            <Card className="mt-6 w-full">
+                <CardContent className="pt-6">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"
                 >
                     <FormField
                         control={form.control}
@@ -103,6 +105,20 @@ export function ServiceForm({ defaultValues }: Props) {
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
                                     <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="slug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Slug</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="web-development" {...field} value={field.value ?? ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -193,8 +209,10 @@ export function ServiceForm({ defaultValues }: Props) {
                     >
                         {form.formState.isSubmitting ? "Saving..." : "Save"}
                     </Button>
-                </form>
-            </Form>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
         </div>
     );
 }

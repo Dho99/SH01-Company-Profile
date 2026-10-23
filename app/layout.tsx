@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,6 +23,16 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${inter.variable} h-full antialiased`}>
             <body className="flex min-h-full flex-col bg-white font-sans">
+                <NextTopLoader
+                    color="#2563eb"
+                    height={3}
+                    crawl
+                    showSpinner={false}
+                    easing="ease"
+                    speed={200}
+                    shadow="0 0 10px #2563eb,0 0 5px #2563eb"
+                    zIndex={9999}
+                />
                 {children}
             </body>
         </html>

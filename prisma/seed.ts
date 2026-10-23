@@ -3,6 +3,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 import bcrypt from "bcryptjs";
 
+function slugify(input: string): string {
+    return input
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80) || "item";
+}
+
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
@@ -168,7 +179,7 @@ async function main() {
         },
     ];
     for (const svc of services) {
-        await prisma.service.create({ data: svc });
+        await prisma.service.create({ data: { ...svc, slug: slugify(svc.title) } });
     }
 
     /* ───── Projects ───── */
@@ -199,7 +210,7 @@ async function main() {
         },
     ];
     for (const proj of projects) {
-        await prisma.project.create({ data: proj });
+        await prisma.project.create({ data: { ...proj, slug: slugify(proj.title) } });
     }
 
     /* ───── Technologies ───── */
@@ -492,19 +503,26 @@ async function main() {
         },
     ];
     for (const post of blogPosts) {
-        await prisma.blogPost.create({ data: post });
+        await prisma.blogPost.create({ data: { ...post, slug: slugify(post.title) } });
     }
 
-    /* ───── Admin user ───── */
-    const email = process.env.ADMIN_EMAIL ?? "admin@lexatech.id";
-    const password = process.env.ADMIN_PASSWORD ?? "admin123";
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    await prisma.user.upsert({
-        where: { email },
-        update: { passwordHash },
-        create: { email, passwordHash, role: "ADMIN", name: "Admin" },
-    });
+    /* ───── Admin user (bootstrap only when no users exist) ───── */
+    const userCount = await prisma.user.count();
+    if (userCount === 0) {
+        const email = process.env.ADMIN_EMAIL;
+        const password = process.env.ADMIN_PASSWORD;
+        if (email && password) {
+            const passwordHash = await bcrypt.hash(password, 12);
+            await prisma.user.create({
+                data: { email, passwordHash, role: "ADMIN", name: "Admin" },
+            });
+            console.log(`✅ Bootstrap admin created: ${email}`);
+        } else {
+            console.log("ℹ️ No users in DB and no ADMIN_EMAIL/ADMIN_PASSWORD — skipping admin bootstrap. Create users via /admin/users.");
+        }
+    } else {
+        console.log(`ℹ️ Users already exist (${userCount}) — skipping admin bootstrap.`);
+    }
 
     console.log("✅ Seed complete");
 }

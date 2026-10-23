@@ -99,7 +99,7 @@ export function AdminClientLayout({
 </header>
 
         <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-5 sm:px-5 lg:px-6 lg:py-7">
-          <div className="mx-auto w-full max-w-[1080px]">
+          <div className="container mx-auto">
 
             {/* Breadcrumb */}
             <div className="mb-6 rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm">

@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { projectSchema } from "@/lib/cms/schemas";
+import { slugify } from "@/lib/slug";
 import { revalidateCms } from "@/lib/cms/revalidate";
+
+async function uniqueSlug(base: string, excludeId: string) {
+    let slug = slugify(base);
+    let candidate = slug;
+    let i = 2;
+    while (true) {
+        const exists = await prisma.project.findUnique({ where: { slug: candidate } });
+        if (!exists || exists.id === excludeId) break;
+        candidate = `${slug}-${i++}`;
+    }
+    return candidate;
+}
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -16,7 +29,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
                 .join("; ");
             return NextResponse.json({ error: message || "Validation failed" }, { status: 400 });
         }
-        const updated = await prisma.project.update({ where: { id }, data: parsed.data });
+        const data = parsed.data as Record<string, unknown>;
+        const slug = (data.slug as string) || (data.title ? await uniqueSlug(data.title as string, id) : undefined);
+        const updated = await prisma.project.update({ where: { id }, data: { ...(data as object), ...(slug ? { slug } : {}) } as never });
         revalidateCms("projects");
         return NextResponse.json({ success: true, data: updated });
     } catch (error) {

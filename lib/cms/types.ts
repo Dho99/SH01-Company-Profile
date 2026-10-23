@@ -11,6 +11,8 @@ import {
   testimonialSchema,
   navLinkSchema,
   blogPostSchema,
+  userCreateSchema,
+  userUpdateSchema,
 } from "./schemas";
 
 export type CreateSiteSettingInput = z.infer<typeof siteSettingSchema>;
@@ -45,3 +47,6 @@ export type UpdateNavLinkInput = Partial<CreateNavLinkInput>;
 
 export type CreateBlogPostInput = z.infer<typeof blogPostSchema>;
 export type UpdateBlogPostInput = Partial<CreateBlogPostInput>;
+
+export type CreateUserInput = z.infer<typeof userCreateSchema>;
+export type UpdateUserInput = z.infer<typeof userUpdateSchema>;
