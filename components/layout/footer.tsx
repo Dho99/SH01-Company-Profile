@@ -9,8 +9,7 @@ import {
 } from "react-icons/fa";
 
 import { Logo } from "@/components/brand/logo";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { NewsletterForm } from "@/components/layout/newsletter-form";
 import { footerNav, site } from "@/lib/site";
 
 const socials = [
@@ -139,18 +138,7 @@ export function Footer() {
               Subscribe to get the latest updates and insights.
             </p>
 
-            <form className="mt-4 space-y-2">
-              <Input
-                type="email"
-                required
-                placeholder="Your email address"
-                className="border-white/15 bg-white/5 text-white placeholder:text-white/40"
-              />
-
-              <Button type="submit" className="w-full rounded-md">
-                Subscribe
-              </Button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
       </div>
