@@ -24,6 +24,7 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { Reveal } from "@/components/reveal";
+import { getNavLinks, getServices } from "@/lib/cms/queries";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -145,10 +146,15 @@ const lookingForItems = [
   "Ready to contribute to real projects",
 ];
 
-export default function CareerPage() {
+export default async function CareerPage() {
+  const [navLinks, services] = await Promise.all([getNavLinks(), getServices()]);
+
   return (
     <>
-      <Navbar />
+      <Navbar
+        navLinks={navLinks}
+        services={services.map((s) => ({ title: s.title, slug: s.slug }))}
+      />
 
       <main className="bg-white">
         {/* Hero */}

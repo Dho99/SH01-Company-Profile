@@ -41,6 +41,7 @@ export function ProjectForm({ defaultValues }: Props) {
     const form = useForm<CreateProjectInput>({
         resolver: zodResolver(projectSchema),
         defaultValues: (defaultValues ?? {
+            slug: "",
             category: "",
             title: "",
             description: "",
@@ -117,6 +118,20 @@ export function ProjectForm({ defaultValues }: Props) {
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
                                     <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="slug"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Slug</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="my-project" {...field} value={field.value ?? ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

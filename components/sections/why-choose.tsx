@@ -1,5 +1,6 @@
 import { CmsIcon } from "@/components/cms-icon";
 import { Reveal } from "@/components/reveal";
+import { WhyChooseSkeleton } from "@/components/skeletons/why-choose-skeleton";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -21,15 +22,7 @@ export function WhyChoose({
 }) {
     const reasons = items;
 
-    if (reasons.length === 0) {
-        return (
-            <section className="bg-white py-20 lg:py-28">
-                <div className="mx-auto max-w-7xl px-4">
-                    <div className="h-32 animate-pulse rounded-xl bg-slate-100" />
-                </div>
-            </section>
-        );
-    }
+    if (reasons.length === 0) return <WhyChooseSkeleton />;
 
     return (
         <section className="bg-white py-10 lg:py-12">

@@ -3,9 +3,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { BlogInteractive } from "./blog-interactive";
+import { BlogSkeleton } from "@/components/skeletons/blog-skeleton";
 
 type BlogPost = {
     id: string;
+    slug: string;
     badge: string;
     tag: string;
     publishedAt: Date | string;
@@ -15,15 +17,7 @@ type BlogPost = {
 };
 
 export function Blog({ posts }: { posts: BlogPost[] }) {
-    if (posts.length === 0) {
-        return (
-            <section id="blog" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="h-96 animate-pulse rounded-2xl bg-slate-100" />
-                </div>
-            </section>
-        );
-    }
+    if (posts.length === 0) return <BlogSkeleton />;
 
     return (
         <section id="blog" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
@@ -45,7 +39,7 @@ export function Blog({ posts }: { posts: BlogPost[] }) {
                         variant="outline"
                         className="h-10 rounded-lg border-amber-200 bg-white px-4 text-sm font-semibold text-amber-600 hover:bg-amber-50 hover:text-amber-700"
                     >
-                        <Link href="/#blog">
+                        <Link href="/blog">
                             View All <ArrowRight className="size-4" />
                         </Link>
                     </Button>

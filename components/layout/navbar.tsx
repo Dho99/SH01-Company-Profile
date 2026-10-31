@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
+import { slugify } from "@/lib/slug";
+
 const ease = [0.22, 1, 0.36, 1] as const;
 
 type NavLink = {
@@ -24,29 +26,21 @@ type NavLink = {
 const fallbackNavLinks: NavLink[] = [
   { label: "Home", href: "/", hasDropdown: false, group: "HEADER" },
   { label: "About Us", href: "/#about", hasDropdown: false, group: "HEADER" },
-  { label: "Services", href: "/#services", hasDropdown: true, group: "HEADER" },
-  { label: "Portfolio", href: "/#portfolio", hasDropdown: false, group: "HEADER" },
+  { label: "Services", href: "/services", hasDropdown: true, group: "HEADER" },
+  { label: "Portfolio", href: "/projects", hasDropdown: false, group: "HEADER" },
   {
     label: "Technologies",
-    href: "/#technologies",
+    href: "/technologies",
     hasDropdown: false,
     group: "HEADER",
   },
-  { label: "Blog", href: "/#blog", hasDropdown: false, group: "HEADER" },
+  { label: "Blog", href: "/blog", hasDropdown: false, group: "HEADER" },
   { label: "Career", href: "/career", hasDropdown: false, group: "HEADER" },
   { label: "Contact", href: "/#contact", hasDropdown: false, group: "HEADER" },
 ];
 
-const serviceDropdownItems = [
-  { label: "Web Development", href: "/#services" },
-  { label: "Mobile Development", href: "/#services" },
-  { label: "System Development", href: "/#services" },
-  { label: "UI/UX Design", href: "/#services" },
-  { label: "IT Consulting", href: "/#services" },
-  { label: "Maintenance & Support", href: "/#services" },
-];
-
 function normalizeHref(href: string) {
+  if (!href || href.includes("undefined")) return "/";
   if (href.startsWith("#")) return `/${href}`;
   return href;
 }
@@ -70,16 +64,37 @@ function normalizeNavLinks(links: NavLink[]) {
   return headerLinks.length > 0 ? headerLinks : fallbackNavLinks;
 }
 
+const fallbackServiceItems = [
+  { label: "Web Development", href: "/services/web-development" },
+  { label: "Mobile Development", href: "/services/mobile-development" },
+  { label: "System Development", href: "/services/system-development" },
+  { label: "UI/UX Design", href: "/services/ui-ux-design" },
+  { label: "IT Consulting", href: "/services/it-consulting" },
+  { label: "Maintenance & Support", href: "/services/maintenance-support" },
+];
+
 export function Navbar({
   navLinks: serverNavLinks,
+  services: serverServices,
 }: {
   navLinks?: NavLink[];
+  services?: { title: string; slug: string }[];
 }) {
   const pathname = usePathname();
   const navLinks =
     serverNavLinks && serverNavLinks.length > 0
       ? normalizeNavLinks(serverNavLinks)
       : fallbackNavLinks;
+  const serviceItems =
+    serverServices && serverServices.length > 0
+      ? serverServices
+          .filter((s) => Boolean(s && s.title))
+          .map((s) => {
+            const rawSlug = s.slug || slugify(s.title);
+            const cleanSlug = rawSlug && rawSlug !== "undefined" ? rawSlug : slugify(s.title);
+            return { label: s.title, href: `/services/${cleanSlug}` };
+          })
+      : fallbackServiceItems;
   const [open, setOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("/");
@@ -222,7 +237,7 @@ export function Navbar({
                     <div className="absolute -top-2 left-1/2 size-4 -translate-x-1/2 rotate-45 border-l border-t border-slate-100 bg-white" />
 
                     <div className="relative space-y-1">
-                      {serviceDropdownItems.map((item) => (
+                      {serviceItems.map((item) => (
                         <Link
                           key={item.label}
                           href={item.href}
@@ -348,7 +363,7 @@ export function Navbar({
                             className="overflow-hidden"
                           >
                             <div className="ml-3 mt-1 space-y-1 border-l border-slate-100 pl-3">
-                              {serviceDropdownItems.map((item) => (
+                              {serviceItems.map((item) => (
                                 <Link
                                   key={item.label}
                                   href={item.href}
