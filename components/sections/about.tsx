@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Users } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
 import { Reveal } from "@/components/reveal";
+import { AboutPointsList } from "@/components/sections/about-points-list";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -59,30 +60,7 @@ export function About({
                         {site.aboutDescription}
                     </p>
 
-                    <ul className="mt-6 space-y-3">
-                        {points.map((point, i) => (
-                            <Reveal
-                                key={point.id}
-                                as="li"
-                                initial={{ opacity: 0, x: -16 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, margin: "-80px" }}
-                                transition={{
-                                    duration: 0.45,
-                                    delay: i * 0.08 + 0.1,
-                                    ease,
-                                }}
-                                className="flex items-center gap-3 text-sm"
-                            >
-                                <span className="inline-flex shrink-0">
-                                    <CheckCircle2 className="size-5 text-brand" />
-                                </span>
-                                <span className="text-slate-700">
-                                    {point.text}
-                                </span>
-                            </Reveal>
-                        ))}
-                    </ul>
+                    <AboutPointsList points={points} />
 
                     <Reveal
                         initial={{ opacity: 0, y: 18 }}
